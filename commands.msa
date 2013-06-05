@@ -91,6 +91,27 @@
 		code: closure(@args,
 			execute(array(id: @args[0], message: array_implode(@args[1..-1])), @standardSignUsage)
 		)
+	),
+	array(
+		name: 'heal',
+		params: '[<gap>]',
+		docs: 'Refills a player\'s health. If gap is provided (it defaults to 0) then the player gets a half a heart every gap seconds.'
+			.' 0 means fill it up instantly.',
+		code: closure(@args,
+			if(array_size(@args) > 1){
+				die(color(RED).'Usage: /easy-sign heal [gap]')
+			}
+			if(array_size(@args) == 1){
+				if(!is_integral(@args[0]) || @args[0] < 0){
+					die(color(RED).'<gap> must be >= 0')
+				} else {
+					@gap = @args[0]
+				}
+			} else {
+				@gap = 0
+			}
+			execute(@gap, @standardSignUsage)
+		)
 	)
 	)
 	if($type == ''){

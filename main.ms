@@ -53,6 +53,19 @@ bind(player_interact, null, null, @e,
 							store_value('easysign.announce', @value)
 							broadcast(colorize(@message))
 						}
+					,'heal',
+						if(@data == 0){
+							set_phealth(20)
+						} else {
+							for(@i = 0, @i <= 20 - pinfo()[5] - 1, @i++,
+								@to = 1000 * @data + (@i * 1000)
+								set_timeout(@to, closure(
+									if(pinfo()[5] < 20){
+										set_phealth(pinfo()[5] + 1)
+									}
+								))
+							)
+						}
 				)
 			)
 			cancel()
