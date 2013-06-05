@@ -112,6 +112,14 @@
 			}
 			execute(@gap, @standardSignUsage)
 		)
+	),
+	array(
+		name: 'msg',
+		params: '<message...>',
+		docs: 'Sends the player a message. Color codes with & are supported.',
+		code: closure(@args,
+			execute(array_implode(@args), @standardSignUsage)
+		)
 	)
 	)
 	if($type == ''){

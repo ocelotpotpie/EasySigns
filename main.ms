@@ -66,6 +66,8 @@ bind(player_interact, null, null, @e,
 								))
 							)
 						}
+					,'msg',
+						msg(colorize(@data))
 				)
 			)
 			cancel()
