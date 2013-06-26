@@ -68,6 +68,12 @@ bind(player_interact, null, null, @e,
 						}
 					,'msg',
 						msg(colorize(@data))
+					,'take',
+						cancel() # Cancel here because of the die
+						if(phas_item(@data['item']) < @data['qty']){
+							die(colorize(@data['failmsg']))
+						}
+						ptake_item(@data['item'], @data['qty'])
 				)
 			)
 			cancel()

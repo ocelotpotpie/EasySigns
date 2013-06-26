@@ -120,6 +120,19 @@
 		code: closure(@args,
 			execute(array_implode(@args), @standardSignUsage)
 		)
+	),
+	array(
+		name: 'take',
+		params: '<item> <qty> <failmsg>',
+		docs: 'Takes an item from a player. If they don\'t have enough, the failmsg is shown, and no other commands will be run.',
+		code: closure(@args,
+			@failmsg = array()
+			for(@i = 2, @i < length(@args), @i++){
+				array_push(@failmsg, @args[@i])
+			}
+			@failmsg = array_implode(@failmsg, ' ')
+			execute(array(item: @args[0], qty: @args[1], failmsg: @failmsg), @standardSignUsage)
+		)
 	)
 	)
 	if($type == ''){
@@ -130,6 +143,12 @@
 		msg(color(RED).'Multiple tasks can be added to each sign, and are run in order.')
 		msg(color(RED).'To see all the tasks on a sign: \'/easy-sign-info\'')
 		msg(color(RED).'To delete a sign: \'/easy-sign-delete\'')
+		@colors = array()
+		foreach(array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F'), @i,
+			array_push(@colors, color(@i).@i)
+		)
+		@colors = array_implode(@colors, '')
+		msg(color(RED).'Color reference: '.@colors)
 		msg(color(RED).'Remember, you also have access to \'/signtext\'')
 		msg(color(BLUE).color(UNDERLINE).'http://redditpublic.com/wiki/EasySign')
 	} else {
