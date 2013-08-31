@@ -33,15 +33,26 @@
 	),
 	array(
 		name: 'warp',
-		params: '<x> <y> <z>',
-		docs: 'Makes a warp sign. Send the x, y, and z coords.'
+		params: '<x> <y> <z> [<world>]',
+		docs: 'Makes a warp sign. Send the x, y, and z coords, and optionally the world name.'
 			.' The user will warp there when they activate the sign.',
 		code: closure(@args,
-			if(array_size(@args) == 3){
+			if(array_size(@args) == 3 || array_size(@args) == 4){
 				if(!is_integral(@args[0]) || !is_integral(@args[1]) || !is_integral(@args[2])){
 					die(color(RED).'All the coords must be numbers')
 				}
-				execute(array(@args[0], @args[1], @args[2], pworld()), @standardSignUsage)
+				if (array_size(@args) == 4) {
+					try(
+						@world = @args[3]
+						world_info(@world)
+					,
+						die(color(RED).'Invalid world specified: '.@world)
+					)
+
+				} else {
+					@world = pworld()
+				}
+				execute(array(@args[0], @args[1], @args[2], @world), @standardSignUsage)
 			} else {
 				die(color(RED).'Usage: /easy-sign warp x y z')
 			}
