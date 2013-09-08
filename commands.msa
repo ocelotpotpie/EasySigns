@@ -38,7 +38,7 @@
 			.' The user will warp there when they activate the sign.',
 		code: closure(@args,
 			if(array_size(@args) == 3 || array_size(@args) == 4){
-				if(!is_integral(@args[0]) || !is_integral(@args[1]) || !is_integral(@args[2])){
+				if(!is_numeric(@args[0]) || !is_numeric(@args[1]) || !is_numeric(@args[2])){
 					die(color(RED).'All the coords must be numbers')
 				}
 				if (array_size(@args) == 4) {
@@ -143,6 +143,32 @@
 			}
 			@failmsg = array_implode(@failmsg, ' ')
 			execute(array(item: @args[0], qty: @args[1], failmsg: @failmsg), @standardSignUsage)
+		)
+	),
+	array(
+		name: 'potion',
+		params: '<id> <strength> <seconds>',
+		docs: 'Applies a potion effect to the player. <id> must be in the range 1 - 23. <strength> has a minimum of level 1.',
+		code: closure(@args,
+			if (array_size(@args) != 3) {
+				die(color(RED).'Usage: /easy-sign potion <id> <strength> <seconds>')
+			}
+			@id = @args[0]
+			@strength = @args[1]
+			@seconds = @args[2]
+			if (! is_integral(@id) || ! is_integral(@strength) || ! is_integral(@seconds)) {
+				die(color(RED).'<id>, <strength> and <seconds> must all be integers.')
+			}
+			if (@id < 1 || @id > 23) {
+				die(color(RED).'<id> must be in the range 1 - 23.')
+			}
+			if (@strength < 1) {
+				die(color(RED).'<strength> must be at least 1.')
+			}
+			if (@seconds < 1) {
+				die(color(RED).'<seconds> must be at least 1.')
+			}
+			execute(array(id: @id, strength: (@strength - 1), seconds: @seconds), @standardSignUsage)
 		)
 	)
 	)

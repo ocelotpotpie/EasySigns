@@ -74,6 +74,8 @@ bind(player_interact, null, null, @e,
 							die(colorize(@data['failmsg']))
 						}
 						ptake_item(@data['item'], @data['qty'])
+					.'potion',
+						set_peffect(player(), @data['id'], @data['strength'], @data['seconds'])
 				)
 			)
 			cancel()
