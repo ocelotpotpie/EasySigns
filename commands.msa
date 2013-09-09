@@ -170,6 +170,42 @@
 			}
 			execute(array(id: @id, strength: (@strength - 1), seconds: @seconds), @standardSignUsage)
 		)
+	),
+	array(
+		name: 'leather',
+		params: '<red> <green> <blue> <item1> .. <itemN>',
+		docs: 'Gives the player leather armor with the specified red, green and blue color components (0 - 255).' .
+			'  <item1> to <itemN> are a list of items to give and can only be: helmet, chestplate, leggings or boots.',
+		code: closure(@args,
+			if (array_size(@args) < 4 || array_size(@args) > 7) {
+				die(color(RED).'Usage: /easy-sign leather <red> <green> <blue> <item1> ...')
+			}
+			for (@i = 0, @i < 3, inc(@i),
+				if (! is_integral(@args[@i]) || @args[@i] < 0 || @args[@i] > 255) {
+					die(color(RED).'Red, green and blue components must be integers in the range 0 to 255.')
+				}
+			)
+			# Map from item name to slot number.
+			@ITEM_SLOTS = array(helmet: 103, chestplate: 102, leggings: 101, boots: 100)
+			@slots = array()
+			for (@i = 3, @i < array_size(@args), inc(@i),
+				if (array_index_exists(@ITEM_SLOTS, @args[@i])) {
+					array_push(@slots, @ITEM_SLOTS[@args[@i]])
+				} else {
+					die(color(RED).'Each item type must be one of: '.array_implode(array_keys(@ITEM_SLOTS), ', '))
+				}
+			)
+			@rgb = array(red: @args[0], green: @args[1], blue: @args[2])
+			execute(array(rgb: @rgb, slots: @slots), @standardSignUsage)
+		)
+	),
+	array(
+		name: 'inventory',
+		params: '',
+		docs: 'Clears the player\'s inventory and gives them an exact copy of your current inventory.',
+		code: closure(@args,
+			execute(pinv(), @standardSignUsage)
+		)
 	)
 	)
 	if($type == ''){

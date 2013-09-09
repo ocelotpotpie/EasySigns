@@ -74,8 +74,20 @@ bind(player_interact, null, null, @e,
 							die(colorize(@data['failmsg']))
 						}
 						ptake_item(@data['item'], @data['qty'])
-					.'potion',
+					,'potion',
 						set_peffect(player(), @data['id'], @data['strength'], @data['seconds'])
+					,'leather',
+						# Map from inventory slot to leather item that must go there.
+						@SLOT_ITEMS = array(103: 298, 102: 299, 101: 300, 100: 301)
+						foreach (@data['slots'], @slot,
+							# CH is somewhat picky about how the array passed to set_pinv() is set up.
+							@change = associative_array()
+							@change[@slot] = array(type: @SLOT_ITEMS[@slot], qty: 1)
+							set_pinv(@change)
+							set_armor_color(@slot, @data['rgb'])
+						)
+					,'inventory',
+						set_pinv(@data)
 				)
 			)
 			cancel()
