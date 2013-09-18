@@ -5,6 +5,7 @@ bind(player_interact, null, null, @e,
 		@signdata = import('easysign.signs')
 		@key = json_encode(@e['location'])
 		if(is_array(@signdata) && array_index_exists(@signdata, @key)){
+			cancel()
 			foreach(@signdata[@key], @cmd,
 				@data = @cmd['data']
 				switch(@cmd['type'],
@@ -13,7 +14,13 @@ bind(player_interact, null, null, @e,
 						set_pbed_location(ploc())
 						msg(color(LIGHT_PURPLE).'Your bed has now been set!')
 					,'warp',
-						set_ploc(@data)
+						if (is_associative(@data)) {
+							# New storage format, better for /easy-sign-info.
+							set_ploc(@data['location'])
+						} else {
+							# Retain compatibility with old storage format.
+							set_ploc(@data)
+						}
 					,'ci',
 						foreach(0..104,@i,
 							@array = associative_array()
@@ -69,11 +76,33 @@ bind(player_interact, null, null, @e,
 					,'msg',
 						msg(colorize(@data))
 					,'take',
-						cancel() # Cancel here because of the die
 						if(phas_item(@data['item']) < @data['qty']){
 							die(colorize(@data['failmsg']))
 						}
 						ptake_item(@data['item'], @data['qty'])
+					,'lore',
+						@held = pinv(player(), null)
+						if (is_null(@held) ||
+							@held['type'] != @data['item'] ||
+							is_null(@held['meta']) || 
+							is_null(@held['meta']['lore'])) {
+							die(colorize(@data['itemmsg']))
+						}
+						
+						@fullLore = strip_colors(array_implode(@held['meta']['lore'], ''))
+						if (@fullLore != @data['lore']) {
+							die(colorize(@data['itemmsg']))
+						}
+						
+						if (@held['qty'] < @data['qty']) {
+							die(colorize(@data['qtymsg']))
+						}
+						
+						@held['qty'] = if (@held['qty'] == 0, null, @held['qty'] - 1)
+						@info = pinfo()
+						@entityId = @info[13]
+						@heldSlot = @info[15]
+						set_inventory_item(@entityId, @heldSlot, @held)
 					,'potion',
 						set_peffect(player(), @data['id'], @data['strength'], @data['seconds'])
 					,'leather',
@@ -88,9 +117,18 @@ bind(player_interact, null, null, @e,
 						)
 					,'inventory',
 						set_pinv(@data)
+					,'dropinventory',
+						foreach (@data, @item,
+							# Drop naturally. Missing CH functionality.
+							null
+						)
+					,'drop',
+						# Drop item. Missing CH functionality to set item type.
+						null
+					,'cart',
+						spawn_entity(MINECART, 1, @data['location'])
 				)
 			)
-			cancel()
 		}
 	}
 )
@@ -112,3 +150,4 @@ set_interval(1 * 60 * 1000, closure(
 		}
 	)
 ))
+

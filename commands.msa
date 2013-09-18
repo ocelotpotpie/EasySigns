@@ -33,29 +33,15 @@
 	),
 	array(
 		name: 'warp',
-		params: '<x> <y> <z> [<world>]',
+		params: '[<world>] <x> <y> <z>',
 		docs: 'Makes a warp sign. Send the x, y, and z coords, and optionally the world name.'
 			.' The user will warp there when they activate the sign.',
 		code: closure(@args,
-			if(array_size(@args) == 3 || array_size(@args) == 4){
-				if(!is_numeric(@args[0]) || !is_numeric(@args[1]) || !is_numeric(@args[2])){
-					die(color(RED).'All the coords must be numbers')
-				}
-				if (array_size(@args) == 4) {
-					try(
-						@world = @args[3]
-						world_info(@world)
-					,
-						die(color(RED).'Invalid world specified: '.@world)
-					)
-
-				} else {
-					@world = pworld()
-				}
-				execute(array(@args[0], @args[1], @args[2], @world), @standardSignUsage)
-			} else {
-				die(color(RED).'Usage: /easy-sign warp x y z')
+			@location = _parse_location(@args)
+			if (! is_array(@location)) {
+				die(color(RED).@location)
 			}
+			execute(array(location: @location), @standardSignUsage)
 		)
 	),
 	array(
@@ -146,6 +132,21 @@
 		)
 	),
 	array(
+		name: 'lore',
+		params: '<item> <qty> <lore>||<itemmsg>||<qtymsg>',
+		docs: 'Takes a specified quantity of an item from a player if it has the required lore. Colors in the lore are ignored and multiple lines are concatenated without spaces. The item must be in the player\'s hand. If the wrong item is held, <itemmsg> is shown. If it is the right item but insufficient in quantity, <qtymsg> is shown. The <itemmsg> and <qtymsg> can be multiple words and color codes are allowed.  The double-bar sequence, \'||\', is used to separate those arguments.  If the item is not taken for whatever reason, subsequent sign actions are not processed. Caution: multiple consecutive spaces in any of these strings will be replaced with single spaces.',
+		code: closure(@args,
+			@item = @args[0]
+			@qty = @args[1]
+			@strings = split('||', array_implode(@args[cslice(2, array_size(@args) - 1)], ' '))
+			if (array_size(@strings) != 3) {
+				die(color(RED).'Usage: /easy-sign lore <item> <qty> <lore>||<itemmsg>||<qtymsg>')
+			}
+			@data = array(item: @item, qty: @qty, lore: @strings[0], itemmsg: @strings[1], qtymsg: @strings[2])
+			execute(@data, @standardSignUsage)
+		)
+	),
+	array(
 		name: 'potion',
 		params: '<id> <strength> <seconds>',
 		docs: 'Applies a potion effect to the player. <id> must be in the range 1 - 23. <strength> has a minimum of level 1.',
@@ -206,23 +207,69 @@
 		code: closure(@args,
 			execute(pinv(), @standardSignUsage)
 		)
-	)
+	),
+#	This action can't be implemented fully until some functionality is added to CH.
+#	array(
+#		name: 'dropinventory',
+#		params: '[<world>] <x> <y> <z>',
+#		docs: 'Scatters a copy of your current inventory at the specified coordinates.',
+#		code: closure(@args,
+#			@location = _parse_location(@args)
+#			if (! is_array(@location)) {
+#				die(color(RED).@location)
+#			}
+#			execute(pinv(), @standardSignUsage)
+#		)
+#	),
+#	This action can't be implemented fully until some functionality is added to CH.
+#	array(
+#		name: 'drop',
+#		params: '<item> <qty> [<world>] <x> <y> <z>',
+#		docs: 'Drops an item stack of the specified type and size at an exact location.',
+#		code: closure(@args,
+#			if (array_size(@args) != 5 && array_size(@args) != 6) {
+#				die(color(RED).'Usage: /easy-sign drop <item> <qty> [<world>] <x> <y> <z>')
+#			}
+#			if (! is_integral(@args[1])) {
+#				die(color(RED).'The quantity must be an integer.')
+#			}
+#			@location = _parse_location(@args[cslice(2, array_size(@args)-1)])
+#			if (! is_array(@location)) {
+#				die(color(RED).@location)
+#			}
+#			execute(array(item: @item, qty: @qty, location: @location), @standardSignUsage)
+#		)
+#	),
+	array(
+		name: 'cart',
+		params: '[<world>] <x> <y> <z>',
+		docs: 'Spawns a minecart at the specified location.',
+		code: closure(@args,
+			@location = _parse_location(@args)
+			if (! is_array(@location)) {
+				die(color(RED).@location)
+			}
+			execute(array(location: @location), @standardSignUsage)
+		)
+	)	
 	)
 	if($type == ''){
 		msg(color(RED).'Usage: /easy-sign <type> [<args>]')
 		foreach(@commands, @value,
 			msg(color(BLUE).@value['name'].' '.@value['params'].color(WHITE).' - '.@value['docs'])
 		)
-		msg(color(RED).'Multiple tasks can be added to each sign, and are run in order.')
-		msg(color(RED).'To see all the tasks on a sign: \'/easy-sign-info\'')
-		msg(color(RED).'To delete a sign: \'/easy-sign-delete\'')
+		msg(color(GOLD).'Multiple tasks can be added to each sign, and are run in order.')
+		msg(color(GOLD).'Related commands:')
+		msg(color(YELLOW).'/easy-sign-info '.color(GRAY).'- List all actions on a sign.')
+		msg(color(YELLOW).'/easy-sign-remove <action> '.color(GRAY).'- Remove a single action from a sign.')
+		msg(color(YELLOW).'/easy-sign-reorder <from> <to> '.color(GRAY).'- Move an action from one position to another.')
 		@colors = array()
 		foreach(array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F'), @i,
 			array_push(@colors, color(@i).@i)
 		)
 		@colors = array_implode(@colors, '')
-		msg(color(RED).'Color reference: '.@colors)
-		msg(color(RED).'Remember, you also have access to \'/signtext\'')
+		msg(color(GOLD).'Color reference: '.@colors)
+		msg(color(GOLD).'Remember, you also have access to \'/signtext\'')
 		msg(color(BLUE).color(UNDERLINE).'http://redditpublic.com/wiki/EasySign')
 	} else {
 		if(!is_sign_at(pcursor())){
@@ -270,7 +317,87 @@
 	if(!array_index_exists(@signdata, @key)){
 		die(color(RED).'No easy sign actions are assigned to that sign')
 	}
+	@i = 1
 	foreach(@signdata[@key], @cmd,
-		msg(color(LIGHT_PURPLE).@cmd['type'] @cmd['data'])
+		@data = @cmd['data']
+		if (is_array(@data)) {
+			@fields = ''
+			@first = true
+			foreach (array_keys(@data), @field,
+				if (@first) {
+					@first = false
+				} else {
+					@fields = @fields.color(GRAY).', '
+				}
+				@fields = @fields.color(YELLOW).@field.color(WHITE).': '.color(LIGHT_PURPLE).@data[@field]
+			)
+		} else {
+			@fields = ''.@data
+		}
+		msg(color(YELLOW).'('.@i.') '.color(GOLD).@cmd['type'].' '.@fields)
+		inc(@i)
 	)
 <<<
+
+*:'/easy-sign-remove' [$index] = >>>
+	if (! is_sign_at(pcursor())) {
+		die(color(RED).'That isn\'t a sign.')
+	}
+	@signdata = get_value('easysign.signs')
+	if (! is_array(@signdata)) {
+		@signdata = array()
+	}
+	@key = json_encode(pcursor())
+	if (! array_index_exists(@signdata, @key)) {
+		die(color(RED).'No easy sign actions are assigned to that sign.')
+	}
+	
+	@index = $index
+	if (! is_integral(@index) || @index < 1 || @index > array_size(@signdata[@key])) {
+		die(color(RED).'The index must be an integer between 1 and the number of actions on the sign.')
+	}
+	
+	msg(color(LIGHT_PURPLE).'Easy sign action removed.')
+	array_remove(@signdata[@key], @index - 1)
+	if (array_size(@signdata[@key]) == 0) {
+		array_remove(@signdata, @key)
+		msg(color(LIGHT_PURPLE).'Empty sign deleted.')
+	}
+	export('easysign.signs', @signdata)
+	store_value('easysign.signs', @signdata)
+<<<
+
+*:'/easy-sign-reorder' [$from] [$to] = >>>
+	if (! is_sign_at(pcursor())) {
+		die(color(RED).'That isn\'t a sign.')
+	}
+	@signdata = get_value('easysign.signs')
+	if (! is_array(@signdata)) {
+		@signdata = array()
+	}
+	@key = json_encode(pcursor())
+	if (! array_index_exists(@signdata, @key)) {
+		die(color(RED).'No easy sign actions are assigned to that sign.')
+	}
+	
+	@from = $from
+	@to = $to
+	if (! is_integral(@from) || @from < 1 || @from > array_size(@signdata[@key])) {
+		die(color(RED).'The \'from\' index must be an integer between 1 and the number of actions on the sign.')
+	}
+	if (! is_integral(@to) || @to < 1 || @to > array_size(@signdata[@key])) {
+		die(color(RED).'The \'to\' index must be an integer between 1 and the number of actions on the sign.')
+	}
+
+	if (@from == @to) {
+		msg(color(LIGHT_PURPLE).'Nothing to do; the \'from\' and \'to\' indices are the same.')
+	} else {
+		msg(color(LIGHT_PURPLE).'Easy sign action '.@from.' moved to position '.@to.'.')
+		@action = array_remove(@signdata[@key], @from - 1)
+		array_insert(@signdata[@key], @action, @to - 1)
+		export('easysign.signs', @signdata)
+		store_value('easysign.signs', @signdata)
+	}
+<<<
+
+
