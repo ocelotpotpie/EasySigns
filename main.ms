@@ -118,13 +118,12 @@ bind(player_interact, null, null, @e,
 					,'inventory',
 						set_pinv(@data)
 					,'dropinventory',
-						foreach (@data, @item,
-							# Drop naturally. Missing CH functionality.
-							null
+						foreach (@data['inventory'], @item,
+							if (! is_null(@item)) {
+								# Missing CH functionality to correctly deal with @data['scatter'].
+								drop_item(@data['location'], @item)
+							}
 						)
-					,'drop',
-						# Drop item. Missing CH functionality to set item type.
-						null
 					,'cart',
 						spawn_entity(MINECART, 1, @data['location'])
 				)

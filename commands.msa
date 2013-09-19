@@ -208,38 +208,19 @@
 			execute(pinv(), @standardSignUsage)
 		)
 	),
-#	This action can't be implemented fully until some functionality is added to CH.
-#	array(
-#		name: 'dropinventory',
-#		params: '[<world>] <x> <y> <z>',
-#		docs: 'Scatters a copy of your current inventory at the specified coordinates.',
-#		code: closure(@args,
-#			@location = _parse_location(@args)
-#			if (! is_array(@location)) {
-#				die(color(RED).@location)
-#			}
-#			execute(pinv(), @standardSignUsage)
-#		)
-#	),
-#	This action can't be implemented fully until some functionality is added to CH.
-#	array(
-#		name: 'drop',
-#		params: '<item> <qty> [<world>] <x> <y> <z>',
-#		docs: 'Drops an item stack of the specified type and size at an exact location.',
-#		code: closure(@args,
-#			if (array_size(@args) != 5 && array_size(@args) != 6) {
-#				die(color(RED).'Usage: /easy-sign drop <item> <qty> [<world>] <x> <y> <z>')
-#			}
-#			if (! is_integral(@args[1])) {
-#				die(color(RED).'The quantity must be an integer.')
-#			}
-#			@location = _parse_location(@args[cslice(2, array_size(@args)-1)])
-#			if (! is_array(@location)) {
-#				die(color(RED).@location)
-#			}
-#			execute(array(item: @item, qty: @qty, location: @location), @standardSignUsage)
-#		)
-#	),
+	array(
+		name: 'dropinventory',
+		params: '[scatter] [<world>] <x> <y> <z>',
+		docs: 'Drops a copy of your current inventory at the specified coordinates. Specify \'scatter\' as the first argument to give the dropped items random velocities.',
+		code: closure(@args,
+			@scatter = (array_size(@args) > 0 && @args[0] == 'scatter')
+			@location = _parse_location(@args[cslice(if(@scatter, 1, 0), array_size(@args) - 1)])
+			if (! is_array(@location)) {
+				die(color(RED).@location)
+			}
+			execute(array(inventory: pinv(), location: @location, scatter: @scatter), @standardSignUsage)
+		)
+	),
 	array(
 		name: 'cart',
 		params: '[<world>] <x> <y> <z>',
