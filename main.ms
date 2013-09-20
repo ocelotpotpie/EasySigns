@@ -118,10 +118,16 @@ bind(player_interact, null, null, @e,
 					,'inventory',
 						set_pinv(@data)
 					,'dropinventory',
+						# drop_item() appears to add (0.5, 0, 0.5) offset to coordinates,
+						# or assumes whole number coordinates.
+						@loc = @data['location']
+						@location = array(@loc[0] - 0.5, @loc[1], @loc[2] - 0.5)
 						foreach (@data['inventory'], @item,
 							if (! is_null(@item)) {
-								# Missing CH functionality to correctly deal with @data['scatter'].
-								drop_item(@data['location'], @item)
+								@entity = drop_item(@location, @item)
+								if (! @data['scatter']) {
+									set_entity_velocity(@entity, array(0, 0, 0))
+								}
 							}
 						)
 					,'cart',
