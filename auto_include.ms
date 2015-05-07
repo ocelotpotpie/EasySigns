@@ -31,3 +31,14 @@ proc(_parse_location, @args,
 	return (array(@args[@start], @args[@start+1], @args[@start+2], @world))
 )
 
+/**
+ * Changes the location array's new format into the old, expected format.
+ */
+proc(_easy_sign_loc_conv, @location,
+	@array = array()
+	@array[] = integer(@location['x'])
+	@array[] = integer(@location['y'])
+	@array[] = integer(@location['z'])
+	@array[] = @location['world']
+	return(@array)
+)

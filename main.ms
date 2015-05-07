@@ -3,7 +3,11 @@ export('easysign.signs', get_value('easysign.signs'))
 bind(player_interact, null, null, @e,
 	if(array_index_exists(@e, 'location') && is_sign_at(@e['location'])){
 		@signdata = import('easysign.signs')
+		# Have to refactor the new format to the old format.
+		@e['location'] = _easy_sign_loc_conv(@e['location'])
 		@key = json_encode(@e['location'])
+#		console('EasySign: ' . player() . ' ' . array_implode(@e['location'], ', '))
+		
 		if(is_array(@signdata) && array_index_exists(@signdata, @key)){
 			cancel()
 			foreach(@signdata[@key], @cmd,
@@ -27,6 +31,8 @@ bind(player_interact, null, null, @e,
 							@array[@i] = null
 							set_pinv(@array)
 						)
+					,'cmd',
+						run(@data['cmd'])
 					,'give',
 						@item = @data['item']
 						@qty = @data['qty']
@@ -38,6 +44,37 @@ bind(player_interact, null, null, @e,
 							set_pinv(@array)
 						} else {
 							pgive_item(@item, @qty)
+						}
+					,'givemax',
+						@id = @data['id']
+						@item = @data['item']
+						@qty = @data['qty']
+						@slot = @data['slot']
+						@max = @data['max']
+
+						@value = get_value('easysign.give')
+#						@value = associative_array()
+						if(!is_array(@value), @value = associative_array())
+						if(!array_index_exists(@value, @id)){
+							@value[@id] = associative_array()
+						}
+						if(!array_index_exists(@value[@id], player())){
+							@value[@id][player()] = 0
+						}
+						if(@value[@id][player()] >= @max){
+							msg(color(GREEN).'[SIGN] '.color(WHITE).'You can only get items here '.@max.' times!')
+						} else {
+							@value[@id][player()] = @value[@id][player()] + 1
+							array_push(@value[@id], player())
+							store_value('easysign.give', @value)
+							if(@slot != null){
+								@array = associative_array()
+								@array[@slot] = array(type: @item, qty: @qty)
+								console(@array)
+								set_pinv(@array)
+							} else {
+								pgive_item(@item, @qty)
+							}
 						}
 					,'hunger',
 						set_phunger(20)
@@ -73,6 +110,31 @@ bind(player_interact, null, null, @e,
 								))
 							)
 						}
+					,'max',
+						@id = @data['id']
+						@uses = @data['uses']
+						@global = @data['global']
+						@used = 0
+
+						@value = get_value('easysign.max')
+						if (!is_array(@value)) { @value = associative_array() }
+						if (@global) {
+							if (!array_index_exists(@value, @id)) { @value[@id] = 0 }
+							@user = @value[@id]
+						} else {
+							if (!array_index_exists(@value, @id)) { @value[@id] = associative_array() }
+							if (!array_index_exists(@value[@id], player())) { @value[@id][player()] = 0 }
+							@user = @value[@id][player()]
+						}
+
+						if (@used >= @uses) { die(color(GREEN) . 'Maximum uses reached! (' . @uses . ')') }
+
+						if (@global) {
+							@value[@id][player()] = @value[@id] + 1
+						} else {
+							@value[@id][player()] = @value[@id][player()] + 1
+						}
+						store_value('easysign.max', @value)
 					,'msg',
 						msg(colorize(@data))
 					,'take',
@@ -130,10 +192,35 @@ bind(player_interact, null, null, @e,
 								}
 							}
 						)
+					,'giveinventory',
+						foreach (@data, @item,
+							if (!is_null(@item)) {
+#								set_inventory_item(pinfo(player(), 13), null, @item)
+								pgive_item(player(), @item['type'], @item['qty'], @item['meta'])
+							}
+						)
 					,'cart',
 						spawn_entity(MINECART, 1, @data['location'])
+					,'launch',
+						set_pvelocity(@data['x'], @data['y'], @data['z'])
+					,'randloc',
+						@MAXDISTANCE = @data['max_distance']
+						@x = rand(- @MAXDISTANCE, @MAXDISTANCE)
+						@z = rand(- @MAXDISTANCE, @MAXDISTANCE)
+						@y = get_highest_block_at(@x, @z)[1]
+						set_ploc(@x, @y, @z)
+					,'tpbed',
+						if (is_array(pbed_location(player()))) {
+							msg('Returning to your bed')
+							set_ploc(pbed_location(player()))
+						} else {
+							msg('You don\'t have a bed set!')
+						}
 				)
 			)
+			@cmdtypes = array()
+			foreach(@signdata[@key], @cmd, array_push(@cmdtypes, @cmd['type'])						)
+			console('EasySign: player=' . player() . ' sign_loc=' . array_implode(@e['location'], ', ') . ' sign_cmds=' . array_implode(@cmdtypes, ', '))
 		}
 	}
 )
@@ -146,13 +233,21 @@ set_interval(1 * 60 * 1000, closure(
 		@signdata = array()
 	}
 	foreach(@signdata, @key, @data,
-		if(!is_sign_at(json_decode(@key))){
-			array_remove(@signdata, @key)
-			store_value('easysign.signs', @signdata)
-			export('easysign.signs', @signdata)
-			console(color(RED).'The sign at '.@key.' is no longer a sign, so it has been deleted from easy signs')
-			die()
-		}
+		try(
+			if(!is_sign_at(json_decode(@key))){
+				array_remove(@signdata, @key)
+				store_value('easysign.signs', @signdata)
+				export('easysign.signs', @signdata)
+				console(color(RED).'The sign at '.@key.' is no longer a sign, so it has been deleted from easy signs')
+				die()
+			}
+			, @ex,
+				array_remove(@signdata, @key)
+				store_value('easysign.signs', @signdata)
+				export('easysign.signs', @signdata)
+				console(color(RED).'The sign at '.@key.' is no longer a sign, so it has been deleted from easy signs')
+				die()
+		)
 	)
 ))
 

@@ -1,12 +1,13 @@
 
 *:'/easy-sign' [$type=''] [$=''] =  >>>
-	_assertperm('admin')
+	if (!has_permission('nerdch.level.admin') && !has_permission('nerdch.commands.easy-sign')) { _noperm(); }
+
 	@standardSignUsage = closure(@data,
 		@signdata = get_value('easysign.signs')
 		if(!is_array(@signdata)){
 			@signdata = array()
 		}
-		@key = json_encode(pcursor())
+		@key = json_encode(_easy_sign_loc_conv(pcursor()))
 		if(!array_index_exists(@signdata, @key)){
 			@signdata[@key] = array()
 		}
@@ -53,6 +54,14 @@
 		)
 	),
 	array(
+		name: 'cmd',
+		params: '',
+		docs: 'Runs the command as the user',
+		code: closure(@args,
+			execute(array(cmd: array_implode(@args)), @standardSignUsage)
+		)
+	),
+	array(
 		name: 'give',
 		params: '<item> <qty> [<slot>]',
 		docs: 'Gives the player an item',
@@ -68,6 +77,27 @@
 				@slot = @args[2]
 			}
 			execute(array(item: @args[0], qty: @args[1], slot: @slot), @standardSignUsage)
+		)
+	),
+	array(
+		name: 'givemax',
+		params: '<id> <item> <qty> <max gives> [<slot>]',
+		docs: 'Gives the player an item',
+		code: closure(@args,
+			if(array_size(@args) != 3 && array_size(@args) != 4 && array_size(@args) != 5){
+					die(color(RED).'Usage: /easy-sign givemax <id> <item> <qty> <max gives> [<slot>]')
+			}
+			if(!is_integral(@args[2])){
+					die(color(RED).'Qty must be an integer')
+			}
+			if(!is_integral(@args[3])){
+				die(color(RED).'Max must be an integer')
+			}
+			@slot = null
+			if(array_size(@args) == 5){
+					@slot = @args[4]
+			}
+			execute(array(id: @args[0], item: @args[1], qty: @args[2], max: @args[3], slot: @slot), @standardSignUsage)
 		)
 	),
 	array(
@@ -108,6 +138,20 @@
 				@gap = 0
 			}
 			execute(@gap, @standardSignUsage)
+		)
+	),
+	array(
+		name: 'max',
+		params: '<id> <uses>',
+		docs: 'Allows the sign to be used <uses> times and no more. No other commands will be run once limit is reached.',
+		code: closure(@args,
+			if(array_size(@args) != 2){
+				die(color(RED).'Usage: /easy-sign max <id> <uses>')
+			}
+			if(!is_integral(@args[1])){
+				die(color(RED).'Uses must be an integer')
+			}
+			execute(array(id: @args[0], uses: @args[1]), @standardSignUsage)
 		)
 	),
 	array(
@@ -222,6 +266,14 @@
 		)
 	),
 	array(
+		name: 'giveinventory',
+		params: '',
+		docs: 'Gives the player the items in your inventory, filling the empty space',
+		code: closure(@args,
+			execute(pinv(), @standardSignUsage)
+		)
+	),
+	array(
 		name: 'cart',
 		params: '[<world>] <x> <y> <z>',
 		docs: 'Spawns a minecart at the specified location.',
@@ -232,8 +284,40 @@
 			}
 			execute(array(location: @location), @standardSignUsage)
 		)
-	)	
+	),
+	array(
+		name: 'launch',
+		params: '<x> <y> <z>',
+		docs: 'Launches a player with the specified velocity vector. The magnitude of the vector cannot exceed 10 (that is,'
+			.' sqrt(@x ** 2 + @y ** 2 + @z ** 2) must be < 10)',
+		code: closure(@args){
+			@x = @args[0]
+			@y = @args[1]
+			@z = @args[2]
+			if(sqrt(@x ** 2 + @y ** 2 + @z ** 2) >= 10){
+				die(color(RED).'The magnitude of the launch vector has to be < 10')
+			}
+			execute(array(x: @x, y: @y, z: @z), @standardSignUsage)
+		}
+	),
+	array(
+		name: 'randloc',
+		params: '<max_distance>',
+		docs: 'Randomly spawns the player max_distance away from 0,0',
+		code: closure(@args){
+			@max_distance = parse_int(@args[0], 10)
+			execute(array(max_distance: @max_distance), @standardSignUsage)
+		}
+	),
+	array(
+		name: 'tpbed',
+		params: '',
+		docs: 'Teleports the player back to their bed',
+		code: closure(@args){
+			execute(array(), @standardSignUsage)
+		}
 	)
+	) #End array definitions
 	if($type == ''){
 		msg(color(RED).'Usage: /easy-sign <type> [<args>]')
 		foreach(@commands, @value,
@@ -271,12 +355,13 @@
 <<<
 
 *:'/easy-sign-delete' [$] = >>>
-	_assertperm('admin')
+	if (!has_permission('nerdch.level.admin') && !has_permission('nerdch.commands.easy-sign-delete')) { _noperm(); }
+
 	@signdata = get_value('easysign.signs')
 	if(!is_array(@signdata)){
 		@signdata = array()
 	}
-	@key = json_encode(pcursor())
+	@key = json_encode(_easy_sign_loc_conv(pcursor()))
 	if(array_index_exists(@signdata, @key)){
 		array_remove(@signdata, @key)
 		store_value('easysign.signs', @signdata)
@@ -287,6 +372,8 @@
 <<<
 
 *:'/easy-sign-info' [$] = >>>
+	if (!has_permission('nerdch.level.admin') && !has_permission('nerdch.commands.easy-sign-info')) { _noperm(); }
+
 	if(!is_sign_at(pcursor())){
 		die(color(RED).'That isn\'t a sign')
 	}
@@ -294,7 +381,7 @@
 	if(!is_array(@signdata)){
 		@signdata = array()
 	}
-	@key = json_encode(pcursor())
+	@key = json_encode(_easy_sign_loc_conv(pcursor()))
 	if(!array_index_exists(@signdata, @key)){
 		die(color(RED).'No easy sign actions are assigned to that sign')
 	}
@@ -321,6 +408,8 @@
 <<<
 
 *:'/easy-sign-remove' [$index] = >>>
+	if (!has_permission('nerdch.level.admin') && !has_permission('nerdch.commands.easy-sign-remove')) { _noperm(); }
+
 	if (! is_sign_at(pcursor())) {
 		die(color(RED).'That isn\'t a sign.')
 	}
@@ -328,7 +417,7 @@
 	if (! is_array(@signdata)) {
 		@signdata = array()
 	}
-	@key = json_encode(pcursor())
+	@key = json_encode(_easy_sign_loc_conv(pcursor()))
 	if (! array_index_exists(@signdata, @key)) {
 		die(color(RED).'No easy sign actions are assigned to that sign.')
 	}
@@ -349,6 +438,8 @@
 <<<
 
 *:'/easy-sign-reorder' [$from] [$to] = >>>
+	if (!has_permission('nerdch.level.admin') && !has_permission('nerdch.commands.easy-sign-reorder')) { _noperm(); }
+
 	if (! is_sign_at(pcursor())) {
 		die(color(RED).'That isn\'t a sign.')
 	}
@@ -356,7 +447,7 @@
 	if (! is_array(@signdata)) {
 		@signdata = array()
 	}
-	@key = json_encode(pcursor())
+	@key = json_encode(_easy_sign_loc_conv(pcursor()))
 	if (! array_index_exists(@signdata, @key)) {
 		die(color(RED).'No easy sign actions are assigned to that sign.')
 	}
@@ -380,5 +471,3 @@
 		store_value('easysign.signs', @signdata)
 	}
 <<<
-
-
