@@ -101,21 +101,21 @@
 		)
 	),
 	array(
-		name: 'give-held',
-		params: '<qty> [<slot>]',
+		name: 'giveheld',
+		params: '[<slot>]',
 		docs: 'Gives the player a duplicate of your currently held item',
 		code: closure(@args,
-			if(array_size(@args) != 1 && array_size(@args) != 2){
-				die(color(RED).'Usage: /easy-sign give-held qty [slot]')
-			}
-			if(!is_integral(@args[0])){
-				die(color(RED).'Qty must be an integer')
+			if(array_size(@args) > 1){
+				die(color(RED).'Usage: /easy-sign giveheld [slot]')
 			}
 			@slot = null
-			if(array_size(@args) == 2){
-				@slot = @args[1]
+			if(array_size(@args) == 1){
+				if(!is_integral(@args[0])){
+					die(color(RED).'Slot must be an integer')
+				}
+				@slot = @args[0]
 			}
-			execute(array(item: pinv(player(), null), qty: @args[0], slot: @slot), @standardSignUsage)
+			execute(array(item: pinv(player(), null), slot: @slot), @standardSignUsage)
 		)
 	),
 	array(

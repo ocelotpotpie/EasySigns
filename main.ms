@@ -76,9 +76,8 @@ bind(player_interact, null, null, @e,
 								pgive_item(@item, @qty)
 							}
 						}
-					,'give-held',
+					,'giveheld',
 						@item = @data['item']
-						@qty = @data['qty']
 						@slot = @data['slot']
 						if(@slot != null){
 							@array = associative_array()
