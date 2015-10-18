@@ -334,6 +334,14 @@
 		code: closure(@args){
 			execute(array(), @standardSignUsage)
 		}
+	),
+	array(
+		name: 'direction',
+		params: '<F>',
+		docs: 'Sets the player\'s direction. Allowed arguments are 0,1,2,3, which correspond to West, South, East, North.',
+		code: closure(@args,
+			execute(array_implode(@args), @standardSignUsage)
+		)
 	)
 	) #End array definitions
 	if($type == ''){

@@ -235,6 +235,8 @@ bind(player_interact, null, null, @e,
 						} else {
 							msg('You don\'t have a bed set!')
 						}
+					,'direction',
+						pfacing(player(), @data)
 				)
 			)
 			@cmdtypes = array()
