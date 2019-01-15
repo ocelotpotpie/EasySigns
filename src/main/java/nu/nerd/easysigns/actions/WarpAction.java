@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 public class WarpAction extends SignAction {
 
 
-    private Location location;
+    private Location loc;
 
 
     /**
@@ -28,20 +28,17 @@ public class WarpAction extends SignAction {
                 x = Integer.parseInt(args[1]);
                 y = Integer.parseInt(args[2]);
                 z = Integer.parseInt(args[3]);
-                location = new Location(world, x, y, z);
+                loc = new Location(world, x, y, z);
             } else {
                 x = Integer.parseInt(args[0]);
                 y = Integer.parseInt(args[1]);
                 z = Integer.parseInt(args[2]);
-                location = new Location(sign.getBlock().getWorld(), x, y, z);
+                loc = new Location(sign.getBlock().getWorld(), x, y, z);
             }
         } catch (NumberFormatException ex) {
             throw new SignActionException("Parameter format error.");
         }
     }
-
-
-    //todo: another constructor for signs being loaded from serialized form
 
 
     public String getName() {
@@ -59,13 +56,23 @@ public class WarpAction extends SignAction {
                 "The user will warp there when they activate the sign.";
     }
 
+
+    /**
+     * Used to serialize the action into BlockStore
+     * @return String in the form of "warp world 0 70 0"
+     */
+    public String toString() {
+        return String.format("%s %s %d %d %d", getName(), loc.getWorld().getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+    }
+
+
     /**
      * The action performed when the sign is clicked
      * @param player the player clicking the sign
      * @param sign the sign clicked
      */
     public void action(Player player, SignData sign) {
-        player.teleport(location);
+        player.teleport(loc);
     }
 
 

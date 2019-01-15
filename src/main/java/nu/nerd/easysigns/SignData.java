@@ -1,10 +1,12 @@
 package nu.nerd.easysigns;
 
+import net.sothatsit.blockstore.BlockStoreApi;
 import nu.nerd.easysigns.actions.SignAction;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -30,6 +32,13 @@ public class SignData {
 
     public List<SignAction> getActions() {
         return actions;
+    }
+
+
+    public void save() {
+        List<String> list = actions.stream().map(SignAction::toString).collect(Collectors.toList());
+        String[] pack = list.toArray(new String[list.size()]);
+        BlockStoreApi.setBlockMeta(block, EasySigns.instance, EasySigns.prefix, pack);
     }
 
 

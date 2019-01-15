@@ -1,25 +1,15 @@
 package nu.nerd.easysigns;
 
-import org.bukkit.Material;
+import net.sothatsit.blockstore.BlockStoreApi;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 
 public class SignListener implements Listener {
 
 
     private EasySigns plugin;
-
-
-    private static final Set<Material> validMaterials = new HashSet<>(Arrays.asList(
-            Material.WALL_SIGN,
-            Material.SIGN
-    ));
 
 
     public SignListener() {
@@ -30,8 +20,15 @@ public class SignListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (!event.hasBlock() || !validMaterials.contains(event.getClickedBlock().getType())) return;
+        if (!event.hasBlock() || !plugin.isSign(event.getClickedBlock())) return;
+        // --- testing ---
         event.getPlayer().sendMessage("Interaction event!");
+        if (plugin.isEasySign(event.getClickedBlock())) {
+            event.getPlayer().sendMessage("Is EasySign");
+            for (String val : ((String[])BlockStoreApi.getBlockMeta(event.getClickedBlock(), plugin, EasySigns.prefix))) {
+                event.getPlayer().sendMessage("- " + val);
+            }
+        }
     }
 
 

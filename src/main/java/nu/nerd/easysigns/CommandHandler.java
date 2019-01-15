@@ -1,10 +1,15 @@
 package nu.nerd.easysigns;
 
+import nu.nerd.easysigns.actions.SignAction;
+import nu.nerd.easysigns.actions.SignActionException;
 import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -62,8 +67,53 @@ public class CommandHandler implements TabExecutor {
     /**
      * Add an action to a sign, registering it if it's not yet a valid Easysign
      */
+    @SuppressWarnings("unchecked")
     private void addAction(CommandSender sender, String[] args) {
-        return;
+
+        Player player = (Player) sender;
+        Block looking = player.getTargetBlock(null, 5);
+        SignData sign;
+
+        //Print command help if no action is specified
+        if (args.length < 1) {
+            //todo: recreate command help from CH version
+            return;
+        }
+
+        //Exit early if the player is not looking at a sign
+        if (!plugin.isSign(looking)) {
+            sender.sendMessage(ChatColor.RED + "That's not a sign. Look at a sign to run this command.");
+            return;
+        }
+
+        //Create a new sign, or load an existing one
+        if (plugin.isEasySign(looking)) {
+            sign = new SignData(looking);
+            player.sendMessage("Already a sign. Todo: load it");
+        } else {
+            sign = new SignData(looking);
+        }
+
+        String actionName = args[0];
+        String[] arguments = Arrays.copyOfRange(args, 1, args.length);
+        Class c = plugin.getActionClassByName(actionName.toLowerCase());
+
+        //Instantiate the correct class and save it to the sign
+        try {
+            SignAction action = (SignAction) c.getConstructor(SignData.class, String[].class).newInstance(sign, arguments);
+            sign.getActions().add(action);
+            sign.save();
+            sender.sendMessage(ChatColor.LIGHT_PURPLE + "Easy sign action added!");
+        }
+        catch (InvocationTargetException ex) {
+            if (ex.getTargetException() instanceof SignActionException) {
+                //todo: print command usage
+            }
+        }
+        catch (NoSuchMethodException|InstantiationException|IllegalAccessException ex) {
+            sender.sendMessage(ChatColor.RED + "Invalid action: " + actionName + ". Run /easy-sign for usage.");
+        }
+
     }
 
 

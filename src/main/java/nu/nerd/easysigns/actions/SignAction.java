@@ -6,6 +6,10 @@ import org.bukkit.entity.Player;
 /**
  * Abstract base class for sign actions.
  * Actions, such as WarpAction, inherit from here.
+ * Actions are serialized by the toString() method returning the same
+ * String passed to /easy-sign. e.g. WarpAction may return "warp world 0 70 0"
+ * Constructors should take SignData sign, String[] args and throw
+ * SignActionException if their arguments are malformed.
  */
 public abstract class SignAction {
 
@@ -30,7 +34,5 @@ public abstract class SignAction {
      * @param sign the sign clicked
      */
     abstract public void action(Player player, SignData sign);
-
-    //todo: some way to serialize/deserialize from BlockStore
 
 }
