@@ -11,6 +11,7 @@ public class WarpAction extends SignAction {
 
 
     private Location loc;
+    private SignData sign;
 
 
     /**
@@ -20,6 +21,7 @@ public class WarpAction extends SignAction {
      * @throws SignActionException on invalid arguments
      */
     public WarpAction(SignData sign, String[] args) throws SignActionException {
+        this.sign = sign;
         int x, y, z;
         World world;
         try {
@@ -69,9 +71,9 @@ public class WarpAction extends SignAction {
     /**
      * The action performed when the sign is clicked
      * @param player the player clicking the sign
-     * @param sign the sign clicked
      */
-    public void action(Player player, SignData sign) {
+    public void action(Player player) {
+        loc.setDirection(player.getLocation().getDirection()); //maintain same rotation
         player.teleport(loc);
     }
 

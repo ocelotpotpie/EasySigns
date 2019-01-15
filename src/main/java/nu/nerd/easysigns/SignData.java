@@ -2,9 +2,13 @@ package nu.nerd.easysigns;
 
 import net.sothatsit.blockstore.BlockStoreApi;
 import nu.nerd.easysigns.actions.SignAction;
+import nu.nerd.easysigns.actions.SignActionException;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +42,28 @@ public class SignData {
     public void save() {
         List<String> list = actions.stream().map(SignAction::toString).collect(Collectors.toList());
         String[] pack = list.toArray(new String[list.size()]);
-        BlockStoreApi.setBlockMeta(block, EasySigns.instance, EasySigns.prefix, pack);
+        BlockStoreApi.setBlockMeta(block, EasySigns.instance, EasySigns.key, pack);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static SignData load(Block block) {
+        SignData sign = new SignData(block);
+        String[] pack = (String[]) BlockStoreApi.getBlockMeta(block, EasySigns.instance, EasySigns.key);
+        for (String s : pack) {
+            String[] terms = s.split(" ");
+            String name = terms[0];
+            String[] args = Arrays.copyOfRange(terms, 1, terms.length);
+            Class c = EasySigns.instance.getActionClassByName(name.toLowerCase());
+            try {
+                SignAction action = (SignAction) c.getConstructor(SignData.class, String[].class).newInstance(sign, args);
+                sign.actions.add(action);
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return sign;
     }
 
 

@@ -13,7 +13,7 @@ public class EasySigns extends JavaPlugin {
 
 
     public static EasySigns instance;
-    public static String prefix = "easysigns";
+    public static String key = "actions";
     private Map<String, Class> actionAtlas;
 
 
@@ -32,29 +32,51 @@ public class EasySigns extends JavaPlugin {
     }
 
 
+    /**
+     * Register SignAction subclasses for use
+     */
     private void createActionAtlas() {
         actionAtlas = new HashMap<>();
         actionAtlas.put("warp", WarpAction.class);
     }
 
 
+    /**
+     * Look up a class by its name
+     * @param name class name to look up
+     * @return the matching Class object or null
+     */
     public Class getActionClassByName(String name) {
         return actionAtlas.get(name);
     }
 
 
+    /**
+     * Returns a Set of valid action names
+     */
     public Set<String> getValidActions() {
         return actionAtlas.keySet();
     }
 
 
+    /**
+     * Check if a block is a sign
+     * @param block the block to check
+     * @return true if the block's material is that of a sign of any type
+     */
     public boolean isSign(Block block) {
         return signMaterials.contains(block.getType());
     }
 
 
+    /**
+     * Consult BlockStore to see if this block is registered as an EasySign
+     * @param block the block to check
+     * @return true if EasySign
+     */
     public boolean isEasySign(Block block) {
-        Object object = BlockStoreApi.getBlockMeta(block, this, prefix);
+        if (!isSign(block)) return false;
+        Object object = BlockStoreApi.getBlockMeta(block, this, key);
         return object != null;
     }
 

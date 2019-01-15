@@ -83,6 +83,7 @@ public class CommandHandler implements TabExecutor {
         //Print command help if no action is specified
         if (args.length < 1) {
             //todo: recreate command help from CH version
+            sender.sendMessage("<Placeholder Command Help>");
             return;
         }
 

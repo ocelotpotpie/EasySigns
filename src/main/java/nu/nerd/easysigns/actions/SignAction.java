@@ -1,6 +1,5 @@
 package nu.nerd.easysigns.actions;
 
-import nu.nerd.easysigns.SignData;
 import org.bukkit.entity.Player;
 
 /**
@@ -31,8 +30,7 @@ public abstract class SignAction {
     /**
      * The action performed when the sign is clicked
      * @param player the player clicking the sign
-     * @param sign the sign clicked
      */
-    abstract public void action(Player player, SignData sign);
+    abstract public void action(Player player);
 
 }
