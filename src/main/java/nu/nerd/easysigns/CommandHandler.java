@@ -54,10 +54,16 @@ public class CommandHandler implements TabExecutor {
      * Suppress tab completion, except for the /easy-sign command, which should
      * suggest valid actions.
      */
-    public List<String> onTabComplete(CommandSender commandSender, Command cmd, String s, String[] strings) {
-        if (cmd.getName().equalsIgnoreCase("easy-sign")) {
-            //todo: tab complete valid sign actions
-            return new ArrayList<>();
+    public List<String> onTabComplete(CommandSender commandSender, Command cmd, String alias, String[] args) {
+        if (cmd.getName().equalsIgnoreCase("easy-sign") && args.length == 1) {
+            List<String> completions = new ArrayList<>();
+            String action = args[0];
+            if (action.equals("")) {
+                completions.addAll(plugin.getValidActions());
+            } else {
+                plugin.getValidActions().stream().filter(s -> s.startsWith(args[0])).forEach(completions::add);
+            }
+            return completions;
         } else {
             return new ArrayList<>();
         }

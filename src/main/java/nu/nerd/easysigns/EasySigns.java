@@ -43,6 +43,11 @@ public class EasySigns extends JavaPlugin {
     }
 
 
+    public Set<String> getValidActions() {
+        return actionAtlas.keySet();
+    }
+
+
     public boolean isSign(Block block) {
         return signMaterials.contains(block.getType());
     }
