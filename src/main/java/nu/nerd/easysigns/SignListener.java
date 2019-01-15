@@ -1,6 +1,5 @@
 package nu.nerd.easysigns;
 
-import net.sothatsit.blockstore.BlockStoreApi;
 import nu.nerd.easysigns.actions.SignAction;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

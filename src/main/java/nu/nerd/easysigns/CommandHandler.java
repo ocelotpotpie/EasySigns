@@ -108,16 +108,16 @@ public class CommandHandler implements TabExecutor {
         //Instantiate the correct class and save it to the sign
         try {
             SignAction action = (SignAction) c.getConstructor(SignData.class, String[].class).newInstance(sign, arguments);
-            sign.getActions().add(action);
-            sign.save();
-            sender.sendMessage(ChatColor.LIGHT_PURPLE + "Easy sign action added!");
-        }
-        catch (InvocationTargetException ex) {
-            if (ex.getTargetException() instanceof SignActionException) {
-                //todo: print command usage
+            if (action.isValid()) {
+                sign.getActions().add(action);
+                sign.save();
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "Easy sign action added!");
+            } else {
+                sender.sendMessage(String.format("%sUsage: /easy-sign %s %s", ChatColor.RED, action.getName(), action.getUsage()));
+                sender.sendMessage(action.getHelpText());
             }
         }
-        catch (NoSuchMethodException|InstantiationException|IllegalAccessException ex) {
+        catch (Exception ex) {
             sender.sendMessage(ChatColor.RED + "Invalid action: " + actionName + ". Run /easy-sign for usage.");
         }
 

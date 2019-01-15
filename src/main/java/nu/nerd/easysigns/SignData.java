@@ -2,11 +2,8 @@ package nu.nerd.easysigns;
 
 import net.sothatsit.blockstore.BlockStoreApi;
 import nu.nerd.easysigns.actions.SignAction;
-import nu.nerd.easysigns.actions.SignActionException;
-import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

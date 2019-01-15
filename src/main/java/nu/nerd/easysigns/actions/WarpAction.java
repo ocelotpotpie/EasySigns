@@ -12,6 +12,7 @@ public class WarpAction extends SignAction {
 
     private Location loc;
     private SignData sign;
+    private boolean valid = true;
 
 
     /**
@@ -38,7 +39,7 @@ public class WarpAction extends SignAction {
                 loc = new Location(sign.getBlock().getWorld(), x, y, z);
             }
         } catch (NumberFormatException ex) {
-            throw new SignActionException("Parameter format error.");
+            valid = false;
         }
     }
 
@@ -65,6 +66,14 @@ public class WarpAction extends SignAction {
      */
     public String toString() {
         return String.format("%s %s %d %d %d", getName(), loc.getWorld().getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+    }
+
+
+    /**
+     * The action was successfully constructed with valid arguments
+     */
+    public boolean isValid() {
+        return valid;
     }
 
 
