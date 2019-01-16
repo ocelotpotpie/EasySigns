@@ -36,6 +36,15 @@ public abstract class SignAction {
     abstract public boolean isValid();
 
     /**
+     * If this action may need to prevent further actions from running, this can
+     * be overridden and selectively return true
+     * @return false unless subsequent actions should be skipped
+     */
+    public boolean shouldExit() {
+        return false;
+    }
+
+    /**
      * The action performed when the sign is clicked
      * @param player the player clicking the sign
      */
