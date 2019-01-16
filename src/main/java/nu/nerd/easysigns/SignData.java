@@ -36,6 +36,9 @@ public class SignData {
     }
 
 
+    /**
+     * Persist the sign to BlockStore
+     */
     public void save() {
         List<String> list = actions.stream().map(SignAction::toString).collect(Collectors.toList());
         String[] pack = list.toArray(new String[list.size()]);
@@ -43,6 +46,9 @@ public class SignData {
     }
 
 
+    /**
+     * Load the sign at the specififed block from BlockStore
+     */
     @SuppressWarnings("unchecked")
     public static SignData load(Block block) {
         SignData sign = new SignData(block);
@@ -64,6 +70,9 @@ public class SignData {
     }
 
 
+    /**
+     * Remove the sign at the specified block from BlockStore
+     */
     public static void delete(Block block) {
         BlockStoreApi.removeBlockMeta(block, EasySigns.instance, EasySigns.key);
     }
