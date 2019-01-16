@@ -174,7 +174,42 @@ public class CommandHandler implements TabExecutor {
      * Remove the specified action from the sign
      */
     private void removeAction(CommandSender sender, String[] args) {
-        return;
+        Player player = (Player) sender;
+        Block looking = player.getTargetBlock(null, 5);
+        SignData sign;
+        int index;
+
+        if (!plugin.isSign(looking)) {
+            sender.sendMessage(ChatColor.RED + "That isn't a sign.");
+            return;
+        }
+
+        if (!plugin.isEasySign(looking)) {
+            sender.sendMessage(ChatColor.RED + "No EasySign actions are assigned to that sign.");
+            return;
+        }
+
+        try {
+            index = Integer.parseInt(args[0]);
+        } catch (NumberFormatException|ArrayIndexOutOfBoundsException ex) {
+            index = -1;
+        }
+        sign = SignData.load(looking);
+
+        if (index < 1 || index > sign.getActions().size()) {
+            sender.sendMessage(ChatColor.RED + "The index must be an integer between 1 and the number of actions on the sign.");
+            return;
+        }
+
+        sign.getActions().remove(index - 1);
+        sender.sendMessage(ChatColor.LIGHT_PURPLE + "EasySign action removed.");
+        if (sign.getActions().size() > 0) {
+            sign.save();
+        } else {
+            SignData.delete(sign.getBlock());
+            sender.sendMessage(ChatColor.LIGHT_PURPLE + "Empty sign deleted.");
+        }
+
     }
 
 
