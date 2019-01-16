@@ -130,7 +130,16 @@ public class CommandHandler implements TabExecutor {
      * Remove all actions from a sign and unregister it as an EasySign
      */
     private void deleteSign(CommandSender sender) {
-        return;
+        Player player = (Player) sender;
+        Block looking = player.getTargetBlock(null, 5);
+
+        if (!plugin.isSign(looking) || !plugin.isEasySign(looking)) {
+            sender.sendMessage(ChatColor.RED + "That doesn't appear to be an easy sign.");
+            return;
+        }
+
+        SignData.delete(looking);
+        sender.sendMessage(ChatColor.RED + "Sign removed");
     }
 
 

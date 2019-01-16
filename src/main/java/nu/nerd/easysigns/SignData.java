@@ -64,4 +64,9 @@ public class SignData {
     }
 
 
+    public static void delete(Block block) {
+        BlockStoreApi.removeBlockMeta(block, EasySigns.instance, EasySigns.key);
+    }
+
+
 }
