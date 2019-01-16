@@ -19,9 +19,8 @@ public class WarpAction extends SignAction {
      * Construct new action from command arguments
      * @param sign the sign this action is being applied to
      * @param args raw command arguments from the CommandExecutor
-     * @throws SignActionException on invalid arguments
      */
-    public WarpAction(SignData sign, String[] args) throws SignActionException {
+    public WarpAction(SignData sign, String[] args) {
         this.sign = sign;
         int x, y, z;
         World world;
