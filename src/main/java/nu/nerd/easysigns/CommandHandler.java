@@ -209,7 +209,6 @@ public class CommandHandler implements TabExecutor {
             SignData.delete(sign.getBlock());
             sender.sendMessage(ChatColor.LIGHT_PURPLE + "Empty sign deleted.");
         }
-
     }
 
 
@@ -217,7 +216,45 @@ public class CommandHandler implements TabExecutor {
      * Reorder an action on a sign
      */
     private void reorderActions(CommandSender sender, String[] args) {
-        return;
+        Player player = (Player) sender;
+        Block looking = player.getTargetBlock(null, 5);
+        SignData sign;
+        SignAction action;
+        int from, to;
+
+        if (!plugin.isSign(looking)) {
+            sender.sendMessage(ChatColor.RED + "That isn't a sign.");
+            return;
+        }
+
+        if (!plugin.isEasySign(looking)) {
+            sender.sendMessage(ChatColor.RED + "No EasySign actions are assigned to that sign.");
+            return;
+        }
+
+        try {
+            from = Integer.parseInt(args[0]);
+            to = Integer.parseInt(args[1]);
+        } catch (NumberFormatException|ArrayIndexOutOfBoundsException ex) {
+            from = -1;
+            to = -1;
+        }
+        sign = SignData.load(looking);
+
+        if (from < 1 || to < 1 || from > sign.getActions().size() || to > sign.getActions().size()) {
+            sender.sendMessage(ChatColor.RED + "The indices must be integers between 1 and the number of actions on the sign.");
+            return;
+        }
+
+        if (from == to) {
+            sender.sendMessage(ChatColor.RED + "Nothing to do; the 'from' and 'to' indices are the same.");
+            return;
+        }
+
+        action = sign.getActions().remove(from - 1);
+        sign.getActions().add(to - 1, action);
+        sign.save();
+        sender.sendMessage(String.format("%sEasy sign action %d moved to position %d.", ChatColor.LIGHT_PURPLE, from, to));
     }
 
 
