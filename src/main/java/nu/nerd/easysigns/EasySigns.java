@@ -39,6 +39,7 @@ public class EasySigns extends JavaPlugin {
         actionAtlas = new HashMap<>();
         actionAtlas.put("sleep", SleepAction.class);
         actionAtlas.put("warp", WarpAction.class);
+        actionAtlas.put("check-empty-inventory", CheckEmptyInvAction.class);
     }
 
 
