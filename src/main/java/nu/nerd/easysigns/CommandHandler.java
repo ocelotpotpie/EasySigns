@@ -147,7 +147,26 @@ public class CommandHandler implements TabExecutor {
      * Determine if this is a valid EasySign and list actions on it
      */
     private void signInfo(CommandSender sender) {
-        return;
+        Player player = (Player) sender;
+        Block looking = player.getTargetBlock(null, 5);
+
+        if (!plugin.isSign(looking)) {
+            sender.sendMessage(ChatColor.RED + "That isn't a sign.");
+            return;
+        }
+
+        if (!plugin.isEasySign(looking)) {
+            sender.sendMessage(ChatColor.RED + "No EasySign actions are assigned to that sign.");
+            return;
+        }
+
+        SignData sign = SignData.load(looking);
+        String rowFmt = ChatColor.YELLOW + "(%d) " + ChatColor.LIGHT_PURPLE + "%s ";
+        int i = 1;
+        for (SignAction action : sign.getActions()) {
+            sender.sendMessage(String.format(rowFmt, i, action.toString()));
+            i++;
+        }
     }
 
 
