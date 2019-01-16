@@ -60,6 +60,14 @@ public class EasySigns extends JavaPlugin {
 
 
     /**
+     * All of the action classes
+     */
+    public Collection<Class> getActionClasses() {
+        return actionAtlas.values();
+    }
+
+
+    /**
      * Check if a block is a sign
      * @param block the block to check
      * @return true if the block's material is that of a sign of any type

@@ -1,13 +1,11 @@
 package nu.nerd.easysigns;
 
 import nu.nerd.easysigns.actions.SignAction;
-import nu.nerd.easysigns.actions.SignActionException;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -82,8 +80,7 @@ public class CommandHandler implements TabExecutor {
 
         //Print command help if no action is specified
         if (args.length < 1) {
-            //todo: recreate command help from CH version
-            sender.sendMessage("<Placeholder Command Help>");
+            addActionCommandHelpText(sender);
             return;
         }
 
@@ -95,8 +92,7 @@ public class CommandHandler implements TabExecutor {
 
         //Create a new sign, or load an existing one
         if (plugin.isEasySign(looking)) {
-            sign = new SignData(looking);
-            player.sendMessage("Already a sign. Todo: load it");
+            sign = SignData.load(looking);
         } else {
             sign = new SignData(looking);
         }
@@ -104,6 +100,11 @@ public class CommandHandler implements TabExecutor {
         String actionName = args[0];
         String[] arguments = Arrays.copyOfRange(args, 1, args.length);
         Class c = plugin.getActionClassByName(actionName.toLowerCase());
+
+        if (c == null) {
+            sender.sendMessage(ChatColor.RED + "Invalid action: " + actionName + ". Run /easy-sign for usage.");
+            return;
+        }
 
         //Instantiate the correct class and save it to the sign
         try {
@@ -118,7 +119,8 @@ public class CommandHandler implements TabExecutor {
             }
         }
         catch (Exception ex) {
-            sender.sendMessage(ChatColor.RED + "Invalid action: " + actionName + ". Run /easy-sign for usage.");
+            sender.sendMessage(ChatColor.RED + "Error running command.");
+            ex.printStackTrace();
         }
 
     }
@@ -153,6 +155,46 @@ public class CommandHandler implements TabExecutor {
      */
     private void reorderActions(CommandSender sender, String[] args) {
         return;
+    }
+
+
+    /**
+     * Print the big help text block when /easy-sign is run with no arguments
+     */
+    @SuppressWarnings("unchecked")
+    private void addActionCommandHelpText(CommandSender sender) {
+        Player player = (Player) sender;
+        SignData sign = new SignData(player.getLocation().getBlock());
+        String actionFmt = ChatColor.BLUE + "%s %s" + ChatColor.WHITE + " - %s";
+        String cmdFmt = ChatColor.YELLOW + "%s " + ChatColor.GRAY + "- %s";
+
+        //List available actions and their usage
+        sender.sendMessage(ChatColor.RED + "Usage: /easy-sign <type> [<args>]");
+        for (Class c : plugin.getActionClasses()) {
+            try {
+                SignAction action = (SignAction) c.getConstructor(SignData.class, String[].class).newInstance(sign, new String[0]);
+                sender.sendMessage(String.format(actionFmt, action.getName(), action.getUsage(), action.getHelpText()));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        //More commands
+        sender.sendMessage(ChatColor.GOLD + "Multiple tasks can be added to each sign, and are run in order.");
+        sender.sendMessage(ChatColor.GOLD + "Related commands:");
+        sender.sendMessage(String.format(cmdFmt, "/easy-sign-info", "List all actions on a sign."));
+        sender.sendMessage(String.format(cmdFmt, "/easy-sign-remove", "Remove a single action from a sign."));
+        sender.sendMessage(String.format(cmdFmt, "/easy-sign-reorder", "Move an action from one position to another."));
+        sender.sendMessage(String.format(cmdFmt, "/easy-sign-delete", "Remove all actions from a sign."));
+
+        //Colors
+        sender.sendMessage(ChatColor.translateAlternateColorCodes(
+                '&', "Color reference: &00 &11 &22 &33 &44 &55 &66 &77 &88 &99 &AA &BB &CC &DD &EE &FF"
+        ));
+
+        //Tips
+        sender.sendMessage(ChatColor.GOLD + "Remember, you also have access to /signtext");
+        sender.sendMessage("" + ChatColor.BLUE + ChatColor.UNDERLINE + "http://wiki.nerd.nu/wiki/EasySign");
     }
 
 

@@ -37,7 +37,7 @@ public class WarpAction extends SignAction {
                 z = Integer.parseInt(args[2]);
                 loc = new Location(sign.getBlock().getWorld(), x, y, z);
             }
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException|IndexOutOfBoundsException ex) {
             valid = false;
         }
     }
