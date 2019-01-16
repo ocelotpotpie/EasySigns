@@ -40,6 +40,7 @@ public class EasySigns extends JavaPlugin {
         actionAtlas.put("sleep", SleepAction.class);
         actionAtlas.put("warp", WarpAction.class);
         actionAtlas.put("check-empty-inventory", CheckEmptyInvAction.class);
+        actionAtlas.put("ci", ClearInvAction.class);
     }
 
 
