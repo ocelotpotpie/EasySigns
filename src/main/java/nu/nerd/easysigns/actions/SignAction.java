@@ -40,7 +40,7 @@ public abstract class SignAction {
      * be overridden and selectively return true
      * @return false unless subsequent actions should be skipped
      */
-    public boolean shouldExit() {
+    public boolean shouldExit(Player player) {
         return false;
     }
 

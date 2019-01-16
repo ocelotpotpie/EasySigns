@@ -25,7 +25,7 @@ public class SignListener implements Listener {
             SignData sign = SignData.load(event.getClickedBlock());
             for (SignAction action : sign.getActions()) {
                 action.action(event.getPlayer());
-                if (action.shouldExit()) break;
+                if (action.shouldExit(event.getPlayer())) break;
             }
         }
     }

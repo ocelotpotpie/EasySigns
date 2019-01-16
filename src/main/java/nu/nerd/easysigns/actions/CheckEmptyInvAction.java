@@ -11,7 +11,6 @@ public class CheckEmptyInvAction extends SignAction {
 
     private SignData sign;
     private String message;
-    private Player player;
 
 
     public CheckEmptyInvAction(SignData sign, String[] args) {
@@ -52,14 +51,13 @@ public class CheckEmptyInvAction extends SignAction {
     }
 
 
-    public boolean shouldExit() {
+    public boolean shouldExit(Player player) {
         //don't process further actions if inventory contents > 0
         return hasEmptyInv(player);
     }
 
 
     public void action(Player player) {
-        this.player = player;
         if (hasEmptyInv(player)) {
             player.sendMessage(ChatColor.RED + message);
         }
