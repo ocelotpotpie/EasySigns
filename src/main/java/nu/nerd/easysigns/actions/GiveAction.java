@@ -3,13 +3,9 @@ package nu.nerd.easysigns.actions;
 import nu.nerd.easysigns.SignData;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,24 +21,17 @@ public class GiveAction extends SignAction {
     public GiveAction(SignData sign, String[] args) {
         this.sign = sign;
         try {
-            if (sign.getEditingPlayer() != null) {
-                //Action is being created by command
-                String itemName = args[0];
-                if (itemName.equalsIgnoreCase("held")) {
-                    item = sign.getEditingPlayer().getInventory().getItemInMainHand();
-                    if (args.length > 1) {
-                        slot = Integer.parseInt(args[1]);
-                    }
-                } else {
-                    item = new ItemStack(Material.valueOf(itemName.toUpperCase()), Integer.parseInt(args[1]));
-                    if (args.length > 2) {
-                        slot = Integer.parseInt(args[2]);
-                    }
+            String itemName = args[0];
+            if (itemName.equalsIgnoreCase("held")) {
+                item = sign.getEditingPlayer().getInventory().getItemInMainHand();
+                if (args.length > 1) {
+                    slot = Integer.parseInt(args[1]);
                 }
             } else {
-                //Action is being loaded from BlockStore
-                slot = Integer.parseInt(args[0]);
-                item = deserializeItemStack(String.join(" ", Arrays.copyOfRange(args, 1, args.length)));
+                item = new ItemStack(Material.valueOf(itemName.toUpperCase()), Integer.parseInt(args[1]));
+                if (args.length > 2) {
+                    slot = Integer.parseInt(args[2]);
+                }
             }
         } catch (IndexOutOfBoundsException|IllegalArgumentException ex) {
             valid = false;
@@ -74,11 +63,6 @@ public class GiveAction extends SignAction {
 
 
     public String toString() {
-        return String.format("%s %d %s", getName(), slot, serializeItemStack());
-    }
-
-
-    public String displayInfo() {
         if (slot > -1) {
             return String.format("%s %s %d", getName(), item.toString(), slot);
         } else {
@@ -97,24 +81,6 @@ public class GiveAction extends SignAction {
         map.put("item", item);
         map.put("slot", slot);
         return map;
-    }
-
-
-    private String serializeItemStack() {
-        FileConfiguration yaml = new YamlConfiguration();
-        yaml.set("ItemStack", item);
-        return yaml.saveToString();
-    }
-
-
-    private ItemStack deserializeItemStack(String str) {
-        try {
-            FileConfiguration yaml = new YamlConfiguration();
-            yaml.loadFromString(str);
-            return (ItemStack) yaml.get("ItemStack");
-        } catch (InvalidConfigurationException ex) {
-            return null;
-        }
     }
 
 
