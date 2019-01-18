@@ -1,5 +1,6 @@
 package nu.nerd.easysigns.actions;
 
+import nu.nerd.easysigns.EasySigns;
 import nu.nerd.easysigns.SignData;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -86,11 +87,21 @@ public class GiveAction extends SignAction {
 
     public void action(Player player) {
         if (slot > -1) {
-            player.getInventory().setItem(slot, item);
+            if (player.getInventory().getItem(slot) == null) {
+                player.getInventory().setItem(slot, item);
+            }
         } else {
-            player.getInventory().addItem(item);
+            Map<Integer,ItemStack> notGiven = player.getInventory().addItem(item);
+            if (notGiven.size() > 0) {
+                EasySigns.instance.getLogger().info(String.format(
+                        "Easysign action 'give' failed for player %s. %d/%d item %s not given.",
+                        player.getName(),
+                        notGiven.size(),
+                        item.getAmount(),
+                        item.getType().toString()
+                ));
+            }
         }
-        //todo: give item and account for possibility of only having room for x/y items
     }
 
 
