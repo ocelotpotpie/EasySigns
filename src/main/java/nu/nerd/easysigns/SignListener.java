@@ -33,7 +33,7 @@ public class SignListener implements Listener {
                     "EasySign: player=%s sign_loc=%s sign_cmds=%s",
                     event.getPlayer().getName(),
                     sign.getBlock().getLocation().toString(),
-                    sign.getActions().stream().map(SignAction::toString).collect(Collectors.joining(", "))
+                    sign.getActions().stream().map(SignAction::getName).collect(Collectors.joining(", "))
             ));
         }
     }
