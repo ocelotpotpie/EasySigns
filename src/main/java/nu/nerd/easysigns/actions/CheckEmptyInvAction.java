@@ -3,8 +3,13 @@ package nu.nerd.easysigns.actions;
 
 import nu.nerd.easysigns.SignData;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class CheckEmptyInvAction extends SignAction {
 
@@ -18,6 +23,12 @@ public class CheckEmptyInvAction extends SignAction {
         if (args.length > 0) {
             message = String.join(" ", args);
         }
+    }
+
+
+    public CheckEmptyInvAction(SignData sign, ConfigurationSection attributes) {
+        this.sign = sign;
+        this.message = attributes.getString("message");
     }
 
 
@@ -48,6 +59,13 @@ public class CheckEmptyInvAction extends SignAction {
 
     public boolean isValid() {
         return true;
+    }
+
+
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("message", message);
+        return map;
     }
 
 

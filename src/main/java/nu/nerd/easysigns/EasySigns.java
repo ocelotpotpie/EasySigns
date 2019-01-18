@@ -42,6 +42,7 @@ public class EasySigns extends JavaPlugin {
         actionAtlas.put("check-empty-inventory", CheckEmptyInvAction.class);
         actionAtlas.put("ci", ClearInvAction.class);
         actionAtlas.put("cmd", CmdAction.class);
+        actionAtlas.put("give", GiveAction.class);
         actionAtlas.put("sound", SoundAction.class);
     }
 

@@ -2,9 +2,8 @@ package nu.nerd.easysigns.actions;
 
 
 import nu.nerd.easysigns.SignData;
-import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public class ClearInvAction extends SignAction {
 
@@ -13,6 +12,11 @@ public class ClearInvAction extends SignAction {
 
 
     public ClearInvAction(SignData sign, String[] args) {
+        this.sign = sign;
+    }
+
+
+    public ClearInvAction(SignData sign, ConfigurationSection attributes) {
         this.sign = sign;
     }
 

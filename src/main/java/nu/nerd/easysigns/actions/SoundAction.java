@@ -3,7 +3,12 @@ package nu.nerd.easysigns.actions;
 
 import nu.nerd.easysigns.SignData;
 import org.bukkit.Sound;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class SoundAction extends SignAction {
 
@@ -28,6 +33,15 @@ public class SoundAction extends SignAction {
         } catch (IndexOutOfBoundsException|IllegalArgumentException ex) {
             valid = false;
         }
+    }
+
+
+    public SoundAction(SignData sign, ConfigurationSection attributes) {
+        this.sign = sign;
+        this.sound = Sound.valueOf(attributes.getString("sound"));
+        this.volume = ((Double)attributes.getDouble("volume")).floatValue();
+        this.pitch =  ((Double)attributes.getDouble("pitch")).floatValue();
+        this.ambient = attributes.getBoolean("ambient");
     }
 
 
@@ -57,6 +71,16 @@ public class SoundAction extends SignAction {
 
     public boolean isValid() {
         return valid;
+    }
+
+
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("sound", sound.name());
+        map.put("volume", volume);
+        map.put("pitch", pitch);
+        map.put("ambient", ambient);
+        return map;
     }
 
 

@@ -3,11 +3,13 @@ package nu.nerd.easysigns;
 import net.sothatsit.blockstore.BlockStoreApi;
 import nu.nerd.easysigns.actions.SignAction;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -17,11 +19,13 @@ public class SignData {
 
 
     private Block block;
+    private Player editingPlayer;
     private List<SignAction> actions;
 
 
     public SignData(Block block) {
         this.block = block;
+        this.editingPlayer = null;
         this.actions = new ArrayList<>();
     }
 
@@ -37,10 +41,35 @@ public class SignData {
 
 
     /**
+     * Get the Player editing this sign.
+     * @see SignData#setEditingPlayer(Player editingPlayer)
+     */
+    public Player getEditingPlayer() {
+        return editingPlayer;
+    }
+
+
+    /**
+     * Get the Player editing this sign. This is used so SignAction constructors
+     * can access the Player object, and is not persisted in any way or present
+     * outside of the scope of a command.
+     */
+    public void setEditingPlayer(Player editingPlayer) {
+        this.editingPlayer = editingPlayer;
+    }
+
+
+    /**
      * Persist the sign to BlockStore
      */
     public void save() {
-        List<String> list = actions.stream().map(SignAction::toString).collect(Collectors.toList());
+        List<String> list = new ArrayList<>();
+        for (SignAction action : actions) {
+            FileConfiguration yaml = new YamlConfiguration();
+            yaml.set("action", action.getName());
+            yaml.set("attributes", action.serialize());
+            list.add(yaml.saveToString());
+        }
         String[] pack = list.toArray(new String[list.size()]);
         BlockStoreApi.setBlockMeta(block, EasySigns.instance, EasySigns.key, pack);
     }
@@ -54,12 +83,14 @@ public class SignData {
         SignData sign = new SignData(block);
         String[] pack = (String[]) BlockStoreApi.getBlockMeta(block, EasySigns.instance, EasySigns.key);
         for (String s : pack) {
-            String[] terms = s.split(" ");
-            String name = terms[0];
-            String[] args = Arrays.copyOfRange(terms, 1, terms.length);
-            Class c = EasySigns.instance.getActionClassByName(name.toLowerCase());
             try {
-                SignAction action = (SignAction) c.getConstructor(SignData.class, String[].class).newInstance(sign, args);
+                FileConfiguration yaml = new YamlConfiguration();
+                yaml.loadFromString(s);
+                String name = yaml.getString("action");
+                ConfigurationSection attr = yaml.getConfigurationSection("attributes");
+                Class c = EasySigns.instance.getActionClassByName(name.toLowerCase());
+                SignAction action = (SignAction) c.getConstructor(SignData.class, ConfigurationSection.class)
+                        .newInstance(sign, attr);
                 sign.actions.add(action);
             }
             catch (Exception ex) {

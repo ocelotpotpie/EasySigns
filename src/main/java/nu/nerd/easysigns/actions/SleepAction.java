@@ -3,7 +3,9 @@ package nu.nerd.easysigns.actions;
 
 import nu.nerd.easysigns.SignData;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+
 
 public class SleepAction extends SignAction {
 
@@ -12,6 +14,11 @@ public class SleepAction extends SignAction {
 
 
     public SleepAction(SignData sign, String[] args) {
+        this.sign = sign;
+    }
+
+
+    public SleepAction(SignData sign, ConfigurationSection attributes) {
         this.sign = sign;
     }
 

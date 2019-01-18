@@ -96,6 +96,7 @@ public class CommandHandler implements TabExecutor {
         } else {
             sign = new SignData(looking);
         }
+        sign.setEditingPlayer(player);
 
         String actionName = args[0];
         String[] arguments = Arrays.copyOfRange(args, 1, args.length);

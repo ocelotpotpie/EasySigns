@@ -2,7 +2,11 @@ package nu.nerd.easysigns.actions;
 
 
 import nu.nerd.easysigns.SignData;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CmdAction extends SignAction {
 
@@ -19,6 +23,12 @@ public class CmdAction extends SignAction {
         } else {
             valid = false;
         }
+    }
+
+
+    public CmdAction(SignData sign, ConfigurationSection attributes) {
+        this.sign = sign;
+        this.command = attributes.getString("command");
     }
 
 
@@ -44,6 +54,13 @@ public class CmdAction extends SignAction {
 
     public boolean isValid() {
         return true;
+    }
+
+
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("command", command);
+        return map;
     }
 
 

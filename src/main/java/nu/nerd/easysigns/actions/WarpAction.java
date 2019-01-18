@@ -4,7 +4,11 @@ import nu.nerd.easysigns.SignData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class WarpAction extends SignAction {
@@ -43,6 +47,12 @@ public class WarpAction extends SignAction {
     }
 
 
+    public WarpAction(SignData sign, ConfigurationSection attributes) {
+        this.sign = sign;
+        this.loc = (Location) attributes.get("loc");
+    }
+
+
     public String getName() {
         return "warp";
     }
@@ -73,6 +83,13 @@ public class WarpAction extends SignAction {
      */
     public boolean isValid() {
         return valid;
+    }
+
+
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("loc", loc);
+        return map;
     }
 
 

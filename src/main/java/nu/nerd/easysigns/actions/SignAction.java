@@ -2,13 +2,18 @@ package nu.nerd.easysigns.actions;
 
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.Map;
+
+
 /**
  * Abstract base class for sign actions.
  * Actions, such as WarpAction, inherit from here.
- * Actions are serialized by the toString() method returning the same
- * String passed to /easy-sign. e.g. WarpAction may return "warp world 0 70 0"
- * Constructors should take SignData sign, String[] args and make isValid()
+ * Constructors, when coming from a command, should take
+ * SignData sign, String[] args and make isValid()
  * return false if a valid action could not be constructed.
+ * When loading an action from BlockStore, the constructor with
+ * SignData sign, ConfigurationSection attributes will be used.
  */
 public abstract class SignAction {
 
@@ -42,6 +47,25 @@ public abstract class SignAction {
      */
     public boolean shouldExit(Player player) {
         return false;
+    }
+
+    /**
+     * If the action class has any attributes to persist to BlockStore, it should
+     * override this method and supply a key/value map of the objects. When the signs
+     * are loaded, one of the two constructors will load them with the
+     * Bukkit ConfigurationSection API.
+     */
+    public Map<String, Object> serialize() {
+        return new HashMap<>();
+    }
+
+    /**
+     * This should be overriden so /easy-sign-info will show the correct
+     * representation of the action stored. For a simple action with no arguments,
+     * this can be left as just the name.
+     */
+    public String toString() {
+        return getName();
     }
 
     /**
