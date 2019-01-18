@@ -5,6 +5,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.stream.Collectors;
+
 
 public class SignListener implements Listener {
 
@@ -27,6 +29,12 @@ public class SignListener implements Listener {
                 action.action(event.getPlayer());
                 if (action.shouldExit(event.getPlayer())) break;
             }
+            plugin.getLogger().info(String.format(
+                    "EasySign: player=%s sign_loc=%s sign_cmds=%s",
+                    event.getPlayer().getName(),
+                    sign.getBlock().getLocation().toString(),
+                    sign.getActions().stream().map(SignAction::toString).collect(Collectors.joining(", "))
+            ));
         }
     }
 
