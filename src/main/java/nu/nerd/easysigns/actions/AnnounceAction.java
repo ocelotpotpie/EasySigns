@@ -55,7 +55,7 @@ public class AnnounceAction extends SignAction {
 
 
     public String toString() {
-        return String.format("%s %s", getName(), message);
+        return String.format("%s %s", getName(), ChatColor.translateAlternateColorCodes('&', message));
     }
 
 
