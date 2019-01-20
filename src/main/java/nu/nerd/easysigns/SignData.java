@@ -107,6 +107,7 @@ public class SignData {
     public static void delete(Block block) {
         BlockStoreApi.removeBlockMeta(block, EasySigns.instance, EasySigns.key);
         BlockStoreApi.removeBlockMeta(block, EasySigns.instance, "announce");
+        BlockStoreApi.removeBlockMeta(block, EasySigns.instance, "max");
     }
 
 

@@ -46,6 +46,7 @@ public class EasySigns extends JavaPlugin {
         actionAtlas.put("hunger", HungerAction.class);
         actionAtlas.put("announce", AnnounceAction.class);
         actionAtlas.put("heal", HealAction.class);
+        actionAtlas.put("max", MaxAction.class);
         actionAtlas.put("sound", SoundAction.class);
     }
 
