@@ -54,6 +54,7 @@ public class EasySigns extends JavaPlugin {
         actionAtlas.put("clearpotions", ClearPotionsAction.class);
         actionAtlas.put("leather", LeatherAction.class);
         actionAtlas.put("inventory", InventoryAction.class);
+        actionAtlas.put("dropinventory", DropInventoryAction.class);
         actionAtlas.put("sound", SoundAction.class);
     }
 
