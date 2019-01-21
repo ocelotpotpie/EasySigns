@@ -15,8 +15,8 @@ public class GiveAction extends SignAction {
 
     private SignData sign;
     private ItemStack item;
-    int slot = -1;
-    boolean valid = true;
+    private int slot = -1;
+    private boolean valid = true;
 
 
     public GiveAction(SignData sign, String[] args) {
