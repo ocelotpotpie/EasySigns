@@ -15,6 +15,7 @@ public class EasySigns extends JavaPlugin {
     public static EasySigns instance;
     public static String key = "actions";
     private Map<String, Class> actionAtlas;
+    private Set<Block> tickingRedstone;
 
 
     public static final Set<Material> signMaterials = new HashSet<>(Arrays.asList(
@@ -26,6 +27,7 @@ public class EasySigns extends JavaPlugin {
     @Override
     public void onEnable() {
         EasySigns.instance = this;
+        tickingRedstone = new HashSet<>();
         createActionAtlas();
         new CommandHandler();
         new SignListener();
@@ -61,6 +63,7 @@ public class EasySigns extends JavaPlugin {
         actionAtlas.put("tpbed", TeleportBedAction.class);
         actionAtlas.put("setbed", SetBedAction.class);
         actionAtlas.put("sound", SoundAction.class);
+        actionAtlas.put("redstone", RedstoneAction.class);
     }
 
 
@@ -109,6 +112,11 @@ public class EasySigns extends JavaPlugin {
         if (!isSign(block)) return false;
         Object object = BlockStoreApi.getBlockMeta(block, this, key);
         return object != null;
+    }
+
+
+    public Set<Block> getTickingRedstone() {
+        return tickingRedstone;
     }
 
 

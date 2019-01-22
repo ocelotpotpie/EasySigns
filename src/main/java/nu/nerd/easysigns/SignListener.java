@@ -3,6 +3,7 @@ package nu.nerd.easysigns;
 import nu.nerd.easysigns.actions.SignAction;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.stream.Collectors;
@@ -35,6 +36,15 @@ public class SignListener implements Listener {
                     sign.getBlock().getLocation().toString(),
                     sign.getActions().stream().map(SignAction::getName).collect(Collectors.joining(", "))
             ));
+        }
+    }
+
+
+    @EventHandler
+    public void onRedstoneEvent(BlockRedstoneEvent event) {
+        //Keep the redstone powered by the sign going for more than one tick
+        if (plugin.getTickingRedstone().contains(event.getBlock())) {
+            event.setNewCurrent(event.getOldCurrent());
         }
     }
 
