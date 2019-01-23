@@ -16,6 +16,8 @@ permissions:
       easysigns.commands.easy-sign-info: true
       easysigns.commands.easy-sign-remove: true
       easysigns.commands.easy-sign-reorder: true
+      easysigns.commands.easy-sign-copy: true
+      easysigns.commands.easy-sign-paste: true
   easysigns.commands.easy-sign:
     description: Access to the /easy-sign command
   easysigns.commands.easy-sign-delete:
@@ -26,6 +28,10 @@ permissions:
     description: Access to the /easy-sign-remove command
   easysigns.commands.easy-sign-reorder:
     description: Access to the /easy-sign-reorder command
+  easysigns.commands.easy-sign-copy:
+    description: Access to the /easy-sign-copy command
+  easysigns.commands.easy-sign-paste:
+    description: Access to the /easy-sign-paste command
 
 
 commands:
@@ -53,4 +59,14 @@ commands:
     usage: /easy-sign-reorder <from> <to>
     description: Reorder sign actions
     permission: easysigns.commands.easy-sign-reorder
+    permission-message: You don't have permission to do that.
+  easy-sign-copy:
+    usage: /easy-sign-copy
+    description: Copy the sign's actions to the clipboard
+    permission: easysigns.commands.easy-sign-copy
+    permission-message: You don't have permission to do that.
+  easy-sign-paste:
+    usage: /easy-sign-paste
+    description: Paste the copied sign actions to a new block.
+    permission: easysigns.commands.easy-sign-paste
     permission-message: You don't have permission to do that.

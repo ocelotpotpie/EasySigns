@@ -8,22 +8,28 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class CommandHandler implements TabExecutor {
 
 
     private EasySigns plugin;
+    private Map<Player, List<SignAction>> clipboard;
 
 
     public CommandHandler() {
         plugin = EasySigns.instance;
+        clipboard = new HashMap<>();
         plugin.getCommand("easy-sign").setExecutor(this);
         plugin.getCommand("easy-sign-delete").setExecutor(this);
         plugin.getCommand("easy-sign-info").setExecutor(this);
         plugin.getCommand("easy-sign-remove").setExecutor(this);
         plugin.getCommand("easy-sign-reorder").setExecutor(this);
+        plugin.getCommand("easy-sign-copy").setExecutor(this);
+        plugin.getCommand("easy-sign-paste").setExecutor(this);
     }
 
 
@@ -42,6 +48,10 @@ public class CommandHandler implements TabExecutor {
             case "easy-sign-remove": removeAction(sender, args);
                 break;
             case "easy-sign-reorder": reorderActions(sender, args);
+                break;
+            case "easy-sign-copy": copySign(sender);
+                break;
+            case "easy-sign-paste": pasteSign(sender);
                 break;
         }
         return true;
@@ -256,6 +266,51 @@ public class CommandHandler implements TabExecutor {
         sign.getActions().add(to - 1, action);
         sign.save();
         sender.sendMessage(String.format("%sEasy sign action %d moved to position %d.", ChatColor.LIGHT_PURPLE, from, to));
+    }
+
+
+    /**
+     * Copy the sign to the clipboard
+     */
+    private void copySign(CommandSender sender) {
+        Player player = (Player) sender;
+        Block looking = player.getTargetBlock(null, 5);
+        SignData sign;
+
+        if (!plugin.isSign(looking) || !plugin.isEasySign(looking)) {
+            sender.sendMessage(ChatColor.RED + "That's not an EasySign. Look at a sign to run this command.");
+            return;
+        }
+
+        sign = SignData.load(looking);
+        clipboard.put(player, sign.getActions());
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Sign copied to clipboard.");
+    }
+
+
+    /**
+     * Paste the sign currently in the clipboard to a new block
+     */
+    private void pasteSign(CommandSender sender) {
+        Player player = (Player) sender;
+        Block looking = player.getTargetBlock(null, 5);
+        SignData sign;
+
+        if (!plugin.isSign(looking)) {
+            sender.sendMessage(ChatColor.RED + "That's not a sign. Look at a sign to run this command.");
+            return;
+        }
+
+        if (!clipboard.containsKey(player)) {
+            sender.sendMessage(ChatColor.RED + "You must copy a sign before you can paste!");
+            return;
+        }
+
+        sign = new SignData(looking);
+        sign.setEditingPlayer(player);
+        sign.getActions().addAll(clipboard.get(player));
+        sign.save();
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Sign actions pasted.");
     }
 
 
