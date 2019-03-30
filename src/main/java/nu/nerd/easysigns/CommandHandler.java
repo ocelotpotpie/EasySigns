@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
@@ -322,8 +323,9 @@ public class CommandHandler implements TabExecutor {
 
         // List available actions and their usage
         sender.sendMessage(ChatColor.RED + "Usage: /easy-sign <type> [<args>]");
-        for (Class<?> c : plugin.getActionClasses()) {
+        for (String actionName : plugin.getValidActions().stream().sorted().collect(Collectors.toList())) {
             try {
+                Class<?> c = plugin.getActionClassByName(actionName);
                 SignAction action = (SignAction) c.getConstructor(SignData.class, String[].class).newInstance(sign, new String[0]);
                 sender.sendMessage(String.format(actionFmt, action.getName(), action.getUsage(), action.getHelpText()));
             } catch (Exception ex) {

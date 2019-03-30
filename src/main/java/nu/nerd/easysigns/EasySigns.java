@@ -90,9 +90,9 @@ public class EasySigns extends JavaPlugin {
     }
 
     /**
-     * Look up a class by its name
+     * Look up the Class of an action by the action's name
      * 
-     * @param name class name to look up
+     * @param name name of the action to look up
      * @return the matching Class object or null
      */
     public Class<?> getActionClassByName(String name) {
