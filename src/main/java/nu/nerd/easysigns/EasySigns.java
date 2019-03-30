@@ -1,28 +1,52 @@
 package nu.nerd.easysigns;
 
-import net.sothatsit.blockstore.BlockStoreApi;
-import nu.nerd.easysigns.actions.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.*;
-
+import net.sothatsit.blockstore.BlockStoreApi;
+import nu.nerd.easysigns.actions.AnnounceAction;
+import nu.nerd.easysigns.actions.CartAction;
+import nu.nerd.easysigns.actions.CheckEmptyInvAction;
+import nu.nerd.easysigns.actions.ClearInvAction;
+import nu.nerd.easysigns.actions.ClearPotionsAction;
+import nu.nerd.easysigns.actions.CmdAction;
+import nu.nerd.easysigns.actions.DropInventoryAction;
+import nu.nerd.easysigns.actions.GiveAction;
+import nu.nerd.easysigns.actions.HealAction;
+import nu.nerd.easysigns.actions.HungerAction;
+import nu.nerd.easysigns.actions.InventoryAction;
+import nu.nerd.easysigns.actions.LaunchAction;
+import nu.nerd.easysigns.actions.LeatherAction;
+import nu.nerd.easysigns.actions.LoreAction;
+import nu.nerd.easysigns.actions.MaxAction;
+import nu.nerd.easysigns.actions.MsgAction;
+import nu.nerd.easysigns.actions.PotionAction;
+import nu.nerd.easysigns.actions.RandLocAction;
+import nu.nerd.easysigns.actions.RedstoneAction;
+import nu.nerd.easysigns.actions.SetBedAction;
+import nu.nerd.easysigns.actions.SleepAction;
+import nu.nerd.easysigns.actions.SoundAction;
+import nu.nerd.easysigns.actions.TakeAction;
+import nu.nerd.easysigns.actions.TeleportBedAction;
+import nu.nerd.easysigns.actions.WarpAction;
 
 public class EasySigns extends JavaPlugin {
 
-
     public static EasySigns instance;
     public static String key = "actions";
-    private Map<String, Class> actionAtlas;
+    private Map<String, Class<?>> actionAtlas;
     private Set<Block> tickingRedstone;
 
-
-    public static final Set<Material> signMaterials = new HashSet<>(Arrays.asList(
-            Material.WALL_SIGN,
-            Material.SIGN
-    ));
-
+    public static final Set<Material> signMaterials = new HashSet<>(
+        Arrays.asList(Material.WALL_SIGN, Material.SIGN));
 
     @Override
     public void onEnable() {
@@ -32,7 +56,6 @@ public class EasySigns extends JavaPlugin {
         new CommandHandler();
         new SignListener();
     }
-
 
     /**
      * Register SignAction subclasses for use
@@ -66,16 +89,15 @@ public class EasySigns extends JavaPlugin {
         actionAtlas.put("redstone", RedstoneAction.class);
     }
 
-
     /**
      * Look up a class by its name
+     * 
      * @param name class name to look up
      * @return the matching Class object or null
      */
-    public Class getActionClassByName(String name) {
+    public Class<?> getActionClassByName(String name) {
         return actionAtlas.get(name);
     }
-
 
     /**
      * Returns a Set of valid action names
@@ -84,17 +106,16 @@ public class EasySigns extends JavaPlugin {
         return actionAtlas.keySet();
     }
 
-
     /**
      * All of the action classes
      */
-    public Collection<Class> getActionClasses() {
+    public Collection<Class<?>> getActionClasses() {
         return actionAtlas.values();
     }
 
-
     /**
      * Check if a block is a sign
+     * 
      * @param block the block to check
      * @return true if the block's material is that of a sign of any type
      */
@@ -102,22 +123,22 @@ public class EasySigns extends JavaPlugin {
         return signMaterials.contains(block.getType());
     }
 
-
     /**
      * Consult BlockStore to see if this block is registered as an EasySign
+     * 
      * @param block the block to check
      * @return true if EasySign
      */
     public boolean isEasySign(Block block) {
-        if (!isSign(block)) return false;
+        if (!isSign(block)) {
+            return false;
+        }
         Object object = BlockStoreApi.getBlockMeta(block, this, key);
         return object != null;
     }
 
-
     public Set<Block> getTickingRedstone() {
         return tickingRedstone;
     }
-
 
 }
