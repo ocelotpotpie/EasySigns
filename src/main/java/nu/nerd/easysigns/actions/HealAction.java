@@ -1,93 +1,91 @@
 package nu.nerd.easysigns.actions;
 
-import nu.nerd.easysigns.EasySigns;
-import nu.nerd.easysigns.SignData;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import nu.nerd.easysigns.EasySigns;
+import nu.nerd.easysigns.SignData;
 
 public class HealAction extends SignAction {
-
-
-    private SignData sign;
-    int gap = 0;
+    private final float ONE_TICK_SECONDS = 0.05f;
+    private final SignData sign;
+    float gap = 0;
     boolean valid = true;
-
 
     public HealAction(SignData sign, String[] args) {
         this.sign = sign;
         if (args.length > 0) {
             try {
-                gap = Integer.parseInt(args[0]);
+                gap = Float.parseFloat(args[0]);
+                if (gap < 0) {
+                    valid = false;
+                }
             } catch (NumberFormatException ex) {
                 valid = false;
             }
         }
     }
 
-
     public HealAction(SignData sign, ConfigurationSection attributes) {
         this.sign = sign;
-        this.gap = attributes.getInt("gap");
+        this.gap = (float) attributes.getDouble("gap");
     }
 
-
+    @Override
     public String getName() {
         return "heal";
     }
 
-
+    @Override
     public String getUsage() {
         return "[<gap>]";
     }
 
-
+    @Override
     public String getHelpText() {
         return "Refills a player's health. If gap is provided (it defaults to 0) then the player gets a half a " +
-                "heart every gap seconds. 0 means fill it up instantly.";
+               "heart every gap seconds. 0 means fill it up instantly.";
     }
 
-
+    @Override
     public String toString() {
-        return String.format("%s %d", getName(), gap);
+        return String.format("%s %.1g", getName(), gap);
     }
 
-
+    @Override
     public boolean isValid() {
         return valid;
     }
 
-
+    @Override
     public Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
         map.put("gap", gap);
         return map;
     }
 
-
+    @Override
     public void action(Player player) {
-        if (gap == 0) {
-            player.setHealth(20);
+        final double maxHealth = player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
+        if (gap < ONE_TICK_SECONDS) {
+            player.setHealth(maxHealth);
         } else {
             new BukkitRunnable() {
-                int i = (20 - (int)Math.floor(player.getHealth()));
+                @Override
                 public void run() {
-                    if (player.getHealth() < 20 && i > 0) {
-                        player.setHealth(player.getHealth() + 1);
+                    if (player.getHealth() < maxHealth) {
+                        player.setHealth(Math.min(player.getHealth() + 1.0, maxHealth));
                     } else {
-                        player.sendMessage("Done!");
                         this.cancel();
                     }
-                    player.sendMessage("i: " + i + ", health: " + player.getHealth());
-                    i--;
                 }
-            }.runTaskTimer(EasySigns.instance, 20L, 20L * gap);
+            }.runTaskTimer(EasySigns.instance, 20L, Math.round(20L * gap));
         }
     }
-
 
 }
