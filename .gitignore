@@ -1,2 +1,6 @@
 *.iml
 target/
+
+# Eclipse stuff.
+.project
+.classpath
