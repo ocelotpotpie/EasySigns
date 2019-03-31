@@ -1,25 +1,22 @@
 package nu.nerd.easysigns.actions;
 
+import java.util.HashMap;
+import java.util.Map;
 
-import nu.nerd.easysigns.SignData;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import nu.nerd.easysigns.SignData;
 
 public class SoundAction extends SignAction {
 
-
-    private SignData sign;
+    private final SignData sign;
     private Sound sound;
     private float volume;
     private float pitch;
     private boolean ambient = false;
     private boolean valid = true;
-
 
     public SoundAction(SignData sign, String[] args) {
         this.sign = sign;
@@ -27,39 +24,44 @@ public class SoundAction extends SignAction {
             sound = Sound.valueOf(args[0].toUpperCase());
             volume = Float.parseFloat(args[1]);
             pitch = Float.parseFloat((args[2]));
+            if (volume <= 0.0 || pitch < 0.5 || pitch > 2.0) {
+                valid = false;
+                return;
+            }
             if (args.length > 3) {
                 ambient = Boolean.parseBoolean(args[3]);
             }
-        } catch (IndexOutOfBoundsException|IllegalArgumentException ex) {
+        } catch (IndexOutOfBoundsException | IllegalArgumentException ex) {
             valid = false;
         }
     }
 
-
     public SoundAction(SignData sign, ConfigurationSection attributes) {
         this.sign = sign;
         this.sound = Sound.valueOf(attributes.getString("sound"));
-        this.volume = ((Double)attributes.getDouble("volume")).floatValue();
-        this.pitch =  ((Double)attributes.getDouble("pitch")).floatValue();
+        this.volume = ((Double) attributes.getDouble("volume")).floatValue();
+        this.pitch = ((Double) attributes.getDouble("pitch")).floatValue();
         this.ambient = attributes.getBoolean("ambient");
     }
 
-
+    @Override
     public String getName() {
         return "sound";
     }
 
-
+    @Override
     public String getUsage() {
         return "<sound> <volume> <pitch> [<ambient>]";
     }
 
-
+    @Override
     public String getHelpText() {
-        return "Plays a sound to the player, or to everyone if [<ambient>] is true.";
+        return "Plays a sound to the player, or to everyone if [<ambient>] is true. " +
+               "Sounds types are listed at https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html. " +
+               "<volume> is the range of the sound in blocks, divided by 15. <pitch> varies from 0.5 to 2.0.";
     }
 
-
+    @Override
     public String toString() {
         if (ambient) {
             return String.format("%s %s %.2f %.2f %s", getName(), sound.toString(), volume, pitch, ambient);
@@ -68,12 +70,12 @@ public class SoundAction extends SignAction {
         }
     }
 
-
+    @Override
     public boolean isValid() {
         return valid;
     }
 
-
+    @Override
     public Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
         map.put("sound", sound.name());
@@ -83,7 +85,7 @@ public class SoundAction extends SignAction {
         return map;
     }
 
-
+    @Override
     public void action(Player player) {
         if (ambient) {
             sign.getBlock().getLocation().getWorld().playSound(sign.getBlock().getLocation(), sound, volume, pitch);
@@ -91,6 +93,5 @@ public class SoundAction extends SignAction {
             player.playSound(player.getLocation(), sound, volume, pitch);
         }
     }
-
 
 }
