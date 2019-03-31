@@ -44,10 +44,10 @@ public class CommandHandler implements TabExecutor {
             addAction(sender, args);
             break;
         case "easy-sign-delete":
-            deleteSign(sender);
+            deleteSign(sender, args);
             break;
         case "easy-sign-info":
-            signInfo(sender);
+            signInfo(sender, args);
             break;
         case "easy-sign-remove":
             removeAction(sender, args);
@@ -56,10 +56,10 @@ public class CommandHandler implements TabExecutor {
             reorderActions(sender, args);
             break;
         case "easy-sign-copy":
-            copySign(sender);
+            copySign(sender, args);
             break;
         case "easy-sign-paste":
-            pasteSign(sender);
+            pasteSign(sender, args);
             break;
         }
         return true;
@@ -144,7 +144,12 @@ public class CommandHandler implements TabExecutor {
     /**
      * Remove all actions from a sign and unregister it as an EasySign
      */
-    private void deleteSign(CommandSender sender) {
+    private void deleteSign(CommandSender sender, String[] args) {
+        if (args.length != 0) {
+            sender.sendMessage(ChatColor.RED + "Unexpected arguments. Usage: /easy-sign-delete");
+            return;
+        }
+
         Player player = (Player) sender;
         Block looking = player.getTargetBlock(null, 5);
 
@@ -154,13 +159,18 @@ public class CommandHandler implements TabExecutor {
         }
 
         SignData.delete(looking);
-        sender.sendMessage(ChatColor.RED + "Sign removed");
+        sender.sendMessage(ChatColor.RED + "Sign removed.");
     }
 
     /**
      * Determine if this is a valid EasySign and list actions on it
      */
-    private void signInfo(CommandSender sender) {
+    private void signInfo(CommandSender sender, String[] args) {
+        if (args.length != 0) {
+            sender.sendMessage(ChatColor.RED + "Unexpected arguments. Usage: /easy-sign-info");
+            return;
+        }
+
         Player player = (Player) sender;
         Block looking = player.getTargetBlock(null, 5);
 
@@ -187,6 +197,11 @@ public class CommandHandler implements TabExecutor {
      * Remove the specified action from the sign
      */
     private void removeAction(CommandSender sender, String[] args) {
+        if (args.length != 1) {
+            sender.sendMessage(ChatColor.RED + "Unexpected arguments. Usage: /easy-sign-remove <index>");
+            return;
+        }
+
         Player player = (Player) sender;
         Block looking = player.getTargetBlock(null, 5);
         SignData sign;
@@ -228,6 +243,11 @@ public class CommandHandler implements TabExecutor {
      * Reorder an action on a sign
      */
     private void reorderActions(CommandSender sender, String[] args) {
+        if (args.length != 2) {
+            sender.sendMessage(ChatColor.RED + "Invalid arguments. Usage: /easy-sign-reorder <from> <to>");
+            return;
+        }
+
         Player player = (Player) sender;
         Block looking = player.getTargetBlock(null, 5);
         SignData sign;
@@ -272,7 +292,12 @@ public class CommandHandler implements TabExecutor {
     /**
      * Copy the sign to the clipboard
      */
-    private void copySign(CommandSender sender) {
+    private void copySign(CommandSender sender, String[] args) {
+        if (args.length != 0) {
+            sender.sendMessage(ChatColor.RED + "Unexpected arguments. Usage: /easy-sign-copy");
+            return;
+        }
+
         Player player = (Player) sender;
         Block looking = player.getTargetBlock(null, 5);
         SignData sign;
@@ -290,7 +315,12 @@ public class CommandHandler implements TabExecutor {
     /**
      * Paste the sign currently in the clipboard to a new block
      */
-    private void pasteSign(CommandSender sender) {
+    private void pasteSign(CommandSender sender, String[] args) {
+        if (args.length != 0) {
+            sender.sendMessage(ChatColor.RED + "Unexpected arguments. Usage: /easy-sign-paste");
+            return;
+        }
+
         Player player = (Player) sender;
         Block looking = player.getTargetBlock(null, 5);
         SignData sign;
