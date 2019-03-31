@@ -1,27 +1,24 @@
 package nu.nerd.easysigns.actions;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-import nu.nerd.easysigns.EasySigns;
-import nu.nerd.easysigns.SignData;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import nu.nerd.easysigns.EasySigns;
+import nu.nerd.easysigns.SignData;
 
 public class TakeAction extends SignAction {
 
-
-    private SignData sign;
+    private final SignData sign;
     private ItemStack item;
     private String failMessage;
     boolean valid = true;
-
 
     public TakeAction(SignData sign, String[] args) {
         this.sign = sign;
@@ -29,15 +26,14 @@ public class TakeAction extends SignAction {
             String itemName = args[0];
             item = new ItemStack(Material.valueOf(itemName.toUpperCase()), Integer.parseInt(args[1]));
             if (args.length > 2) {
-                failMessage = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+                failMessage = translate(String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
             } else {
                 valid = false;
             }
-        } catch (IndexOutOfBoundsException|IllegalArgumentException ex) {
+        } catch (IndexOutOfBoundsException | IllegalArgumentException ex) {
             valid = false;
         }
     }
-
 
     public TakeAction(SignData sign, ConfigurationSection attributes) {
         this.sign = sign;
@@ -45,33 +41,33 @@ public class TakeAction extends SignAction {
         this.failMessage = attributes.getString("failmessage");
     }
 
-
+    @Override
     public String getName() {
         return "take";
     }
 
-
+    @Override
     public String getUsage() {
         return "<item> <qty> <failmsg>";
     }
 
-
+    @Override
     public String getHelpText() {
         return "Takes an item from a player. If they don't have enough, the failmsg is shown, " +
-                "and no other commands will be run.";
+               "and no other commands will be run.";
     }
 
-
+    @Override
     public String toString() {
-        return String.format("%s %s %s", getName(), item.toString(), ChatColor.translateAlternateColorCodes('&', failMessage));
+        return String.format("%s %s %s", getName(), item.toString(), failMessage);
     }
 
-
+    @Override
     public boolean isValid() {
         return valid;
     }
 
-
+    @Override
     public Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
         map.put("item", item);
@@ -79,25 +75,24 @@ public class TakeAction extends SignAction {
         return map;
     }
 
-
+    @Override
     public boolean shouldExit(Player player) {
         if (player.hasMetadata("easysigns.take")) {
-            //just took the item from the player, don't exit this time
+            // just took the item from the player, don't exit this time
             player.removeMetadata("easysigns.take", EasySigns.instance);
             return false;
         }
         return !player.getInventory().contains(item.getType(), item.getAmount());
     }
 
-
+    @Override
     public void action(Player player) {
         if (player.getInventory().contains(item.getType(), item.getAmount())) {
             player.getInventory().removeItem(item);
             player.setMetadata("easysigns.take", new FixedMetadataValue(EasySigns.instance, true));
         } else {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', failMessage));
+            player.sendMessage(failMessage);
         }
     }
-
 
 }
