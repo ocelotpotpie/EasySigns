@@ -348,6 +348,8 @@ public class CommandHandler implements TabExecutor {
     private void addActionCommandHelpText(CommandSender sender) {
         Player player = (Player) sender;
         SignData sign = new SignData(player.getLocation().getBlock());
+        sign.setEditingPlayer(player);
+
         String actionFmt = ChatColor.BLUE + "%s %s" + ChatColor.WHITE + " - %s";
         String cmdFmt = ChatColor.YELLOW + "%s " + ChatColor.GRAY + "- %s";
 
