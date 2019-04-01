@@ -2,7 +2,10 @@ package nu.nerd.easysigns.actions;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -67,38 +70,41 @@ public class AnnounceAction extends SignAction {
         return map;
     }
 
-    private boolean hasUsed(Player player) {
-        String[] used = (String[]) BlockStoreApi.getBlockMeta(sign.getBlock(), EasySigns.instance, "announce");
-        if (used != null) {
-            for (String id : used) {
-                if (id.equalsIgnoreCase(player.getUniqueId().toString())) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    public boolean hasUsed(UUID playerUUID) {
+        String uuidString = playerUUID.toString();
+        return getAnnouncedUUIDs().contains(uuidString);
     }
 
-    private void setUsed(Player player) {
-        String[] newUsed;
-        String[] oldUsed = (String[]) BlockStoreApi.getBlockMeta(sign.getBlock(), EasySigns.instance, "announce");
-        if (oldUsed != null && oldUsed.length > 0) {
-            newUsed = Arrays.copyOf(oldUsed, oldUsed.length + 1);
-            newUsed[newUsed.length - 1] = player.getUniqueId().toString();
+    public void setUsed(UUID playerUUID, boolean used) {
+        String uuidString = playerUUID.toString();
+        Set<String> announced = getAnnouncedUUIDs();
+        if (used) {
+            announced.add(uuidString);
         } else {
-            newUsed = new String[] { player.getUniqueId().toString() };
+            announced.remove(uuidString);
         }
-        BlockStoreApi.setBlockMeta(sign.getBlock(), EasySigns.instance, "announce", newUsed);
+        BlockStoreApi.setBlockMeta(sign.getBlock(), EasySigns.instance, "announce", announced.toArray(new String[announced.size()]));
     }
 
     @Override
     public void action(Player player) {
-        if (!hasUsed(player)) {
+        UUID playerUUID = player.getUniqueId();
+        if (!hasUsed(playerUUID)) {
             player.getServer().broadcastMessage(message.replace("%s", player.getName()));
-            setUsed(player);
+            setUsed(playerUUID, true);
         } else {
             player.sendMessage(ChatColor.GREEN + "[SIGN] " + ChatColor.WHITE + "You can only announce here once!");
         }
     }
 
+    /**
+     * Return the set of UUIDs (as Strings) of players that have triggered this
+     * action.
+     * 
+     * @return the non-null set of UUID Strings.
+     */
+    private Set<String> getAnnouncedUUIDs() {
+        String[] used = (String[]) BlockStoreApi.getBlockMeta(sign.getBlock(), EasySigns.instance, "announce");
+        return used != null ? new HashSet<>(Arrays.asList(used)) : new HashSet<>();
+    }
 }

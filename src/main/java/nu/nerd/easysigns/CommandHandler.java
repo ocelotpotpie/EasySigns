@@ -7,13 +7,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
+import nu.nerd.easysigns.actions.AnnounceAction;
+import nu.nerd.easysigns.actions.MaxAction;
 import nu.nerd.easysigns.actions.SignAction;
 
 public class CommandHandler implements TabExecutor {
@@ -31,6 +35,7 @@ public class CommandHandler implements TabExecutor {
         plugin.getCommand("easy-sign-reorder").setExecutor(this);
         plugin.getCommand("easy-sign-copy").setExecutor(this);
         plugin.getCommand("easy-sign-paste").setExecutor(this);
+        plugin.getCommand("easy-sign-used").setExecutor(this);
     }
 
     @Override
@@ -60,6 +65,9 @@ public class CommandHandler implements TabExecutor {
             break;
         case "easy-sign-paste":
             pasteSign(sender, args);
+            break;
+        case "easy-sign-used":
+            usedSign(sender, args);
             break;
         }
         return true;
@@ -343,6 +351,63 @@ public class CommandHandler implements TabExecutor {
     }
 
     /**
+     * Handle /easy-sign-used <player> <count>.
+     */
+    private void usedSign(CommandSender sender, String[] args) {
+        if (args.length != 2) {
+            sender.sendMessage(ChatColor.RED + "Invalid arguments. Usage: /easy-sign-used <player> <count>");
+            return;
+        }
+
+        Player creator = (Player) sender;
+        Block looking = creator.getTargetBlock(null, 5);
+        if (!plugin.isSign(looking)) {
+            sender.sendMessage(ChatColor.RED + "That isn't a sign.");
+            return;
+        }
+        if (!plugin.isEasySign(looking)) {
+            sender.sendMessage(ChatColor.RED + "No EasySign actions are assigned to that sign.");
+            return;
+        }
+
+        OfflinePlayer player = Bukkit.getOfflinePlayer(args[0]);
+        if (!player.isOnline() && !player.hasPlayedBefore()) {
+            sender.sendMessage(ChatColor.RED + "That player has not been seen before.");
+            return;
+        }
+
+        int count = -1;
+        try {
+            count = Integer.parseInt(args[1]);
+        } catch (IllegalArgumentException ex) {
+        }
+        if (count < 0) {
+            sender.sendMessage(ChatColor.RED + "The count must be zero or greater.");
+            return;
+        }
+
+        SignData sign = SignData.load(looking);
+        boolean changed = false;
+        for (SignAction action : sign.getActions()) {
+            if (action.getName().equals("announce")) {
+                boolean signUsed = (count != 0);
+                ((AnnounceAction) action).setUsed(player.getUniqueId(), signUsed);
+                sender.sendMessage(ChatColor.GOLD + "The announce action now records " + player.getName() +
+                                   " as having " + (signUsed ? "used" : "never used") + " the sign.");
+                changed = true;
+            } else if (action.getName().equals("max")) {
+                ((MaxAction) action).setTimesUsed(player.getUniqueId(), count);
+                sender.sendMessage(ChatColor.GOLD + "The use count for " + player.getName() + " was set to " + count + ".");
+                changed = true;
+            }
+        }
+
+        if (!changed) {
+            sender.sendMessage(ChatColor.GOLD + "No sign actions were affected.");
+        }
+    }
+
+    /**
      * Print the big help text block when /easy-sign is run with no arguments
      */
     private void addActionCommandHelpText(CommandSender sender) {
@@ -372,6 +437,7 @@ public class CommandHandler implements TabExecutor {
         sender.sendMessage(String.format(cmdFmt, "/easy-sign-remove", "Remove a single action from a sign."));
         sender.sendMessage(String.format(cmdFmt, "/easy-sign-reorder", "Move an action from one position to another."));
         sender.sendMessage(String.format(cmdFmt, "/easy-sign-delete", "Remove all actions from a sign."));
+        sender.sendMessage(String.format(cmdFmt, "/easy-sign-used <player> <count>", "Record that <player> has used a sign <count> times."));
 
         // Colors
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&',

@@ -18,6 +18,7 @@ permissions:
       easysigns.commands.easy-sign-reorder: true
       easysigns.commands.easy-sign-copy: true
       easysigns.commands.easy-sign-paste: true
+      easysigns.commands.easy-sign-used: true
   easysigns.commands.easy-sign:
     description: Access to the /easy-sign command
   easysigns.commands.easy-sign-delete:
@@ -32,6 +33,8 @@ permissions:
     description: Access to the /easy-sign-copy command
   easysigns.commands.easy-sign-paste:
     description: Access to the /easy-sign-paste command
+  easysigns.commands.easy-sign-used:
+    description: Access to the /easy-sign-used command
 
 
 commands:
@@ -69,4 +72,9 @@ commands:
     usage: /easy-sign-paste
     description: Paste the copied sign actions to a new block.
     permission: easysigns.commands.easy-sign-paste
+    permission-message: You don't have permission to do that.
+  easy-sign-used:
+    usage: /easy-sign-used <player> <count>
+    description: Record that <player> has used a sign <count> times.
+    permission: easysigns.commands.easy-sign-used
     permission-message: You don't have permission to do that.
