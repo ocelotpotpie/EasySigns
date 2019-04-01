@@ -59,7 +59,7 @@ public class LoreAction extends SignAction {
     @Override
     public String getHelpText() {
         return "Takes a specified quantity of an item from a player if it has the required lore. " +
-               "Unlike the take action, the player must be holding the item in their main hand when they click the sign." +
+               "Unlike the take action, the player must be holding the item in their main hand when they click the sign. " +
                "Colors in the lore are ignored and multiple lines are concatenated without spaces. " +
                "The item must be in the player's hand. If the wrong item is held, <itemmsg> is shown. " +
                "If it is the right item but insufficient in quantity, <qtymsg> is shown. The <itemmsg> " +
@@ -97,7 +97,6 @@ public class LoreAction extends SignAction {
     @Override
     public boolean shouldExit(Player player) {
         if (player.hasMetadata("easysigns.lore")) {
-            // action() has evaluated that the item is here, so don't return
             player.removeMetadata("easysigns.lore", EasySigns.instance);
             return false;
         }
@@ -108,21 +107,11 @@ public class LoreAction extends SignAction {
     public void action(Player player) {
         ItemStack held = player.getInventory().getItemInMainHand();
         boolean hasItem = held != null && held.getType().equals(item.getType());
-        boolean hasQty = held != null && held.getAmount() >= item.getAmount();
         boolean hasLore = held != null && held.hasItemMeta() && held.getItemMeta().hasLore();
-        boolean matching = false;
-        String loreStr;
+        String heldItemLore = hasLore ? ChatColor.stripColor(String.join("", held.getItemMeta().getLore())) : "";
 
-        if (hasLore) {
-            loreStr = String.join("", held.getItemMeta().getLore());
-            loreStr = ChatColor.stripColor(loreStr);
-            if (loreStr.equals(lore)) {
-                matching = true;
-            }
-        }
-
-        if (matching) {
-            if (hasQty) {
+        if (hasItem && heldItemLore.equals(lore)) {
+            if (held.getAmount() >= item.getAmount()) {
                 held.setAmount(held.getAmount() - item.getAmount());
                 player.setMetadata("easysigns.lore", new FixedMetadataValue(EasySigns.instance, true));
             } else {
@@ -132,5 +121,4 @@ public class LoreAction extends SignAction {
             player.sendMessage(itemMessage);
         }
     }
-
 }
