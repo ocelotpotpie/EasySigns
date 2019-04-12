@@ -35,6 +35,7 @@ import nu.nerd.easysigns.actions.SetBedAction;
 import nu.nerd.easysigns.actions.SleepAction;
 import nu.nerd.easysigns.actions.SoundAction;
 import nu.nerd.easysigns.actions.TakeAction;
+import nu.nerd.easysigns.actions.TakeHeldAction;
 import nu.nerd.easysigns.actions.TeleportBedAction;
 import nu.nerd.easysigns.actions.WarpAction;
 
@@ -74,6 +75,7 @@ public class EasySigns extends JavaPlugin {
         actionAtlas.put("max", MaxAction.class);
         actionAtlas.put("msg", MsgAction.class);
         actionAtlas.put("take", TakeAction.class);
+        actionAtlas.put("takeheld", TakeHeldAction.class);
         actionAtlas.put("lore", LoreAction.class);
         actionAtlas.put("potion", PotionAction.class);
         actionAtlas.put("clearpotions", ClearPotionsAction.class);
