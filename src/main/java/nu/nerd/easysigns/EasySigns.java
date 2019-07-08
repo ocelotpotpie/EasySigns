@@ -1,6 +1,5 @@
 package nu.nerd.easysigns;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -43,16 +43,18 @@ public class EasySigns extends JavaPlugin {
 
     public static EasySigns instance;
     public static String key = "actions";
-    private Map<String, Class<?>> actionAtlas;
-    private Set<Block> tickingRedstone;
+    private static Set<Material> SIGN_MATERIALS;
+    private static Set<Material> WALL_SIGN_MATERIALS;
 
-    public static final Set<Material> signMaterials = new HashSet<>(
-        Arrays.asList(Material.WALL_SIGN, Material.SIGN));
+    private Map<String, Class<?>> actionAtlas;
+    private final Set<Block> tickingRedstone= new HashSet<>();
 
     @Override
     public void onEnable() {
         EasySigns.instance = this;
-        tickingRedstone = new HashSet<>();
+        SIGN_MATERIALS = Tag.SIGNS.getValues();
+        WALL_SIGN_MATERIALS = Tag.WALL_SIGNS.getValues();
+
         createActionAtlas();
         new CommandHandler();
         new SignListener();
@@ -116,13 +118,23 @@ public class EasySigns extends JavaPlugin {
     }
 
     /**
-     * Check if a block is a sign
+     * Check if a block is a sign.
      * 
      * @param block the block to check
-     * @return true if the block's material is that of a sign of any type
+     * @return true if the block's material is that of a sign of any type.
      */
     public boolean isSign(Block block) {
-        return signMaterials.contains(block.getType());
+        return SIGN_MATERIALS.contains(block.getType());
+    }
+
+    /**
+     * Check if a block is a wall sign
+     * 
+     * @param block the block to check
+     * @return true if the block's material is that of a wall sign of any type.
+     */
+    public boolean isWallSign(Block block) {
+        return WALL_SIGN_MATERIALS.contains(block.getType());
     }
 
     /**
