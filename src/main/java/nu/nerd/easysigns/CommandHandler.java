@@ -445,7 +445,7 @@ public class CommandHandler implements TabExecutor {
 
         // Tips
         sender.sendMessage(ChatColor.GOLD + "Remember, you also have access to /signtext");
-        sender.sendMessage("" + ChatColor.BLUE + ChatColor.UNDERLINE + "http://wiki.nerd.nu/wiki/EasySign");
+        sender.sendMessage("" + ChatColor.BLUE + ChatColor.UNDERLINE + "https://github.com/NerdNu/EasySigns");
     }
 
 }

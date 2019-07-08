@@ -16,8 +16,15 @@ Features
 
 Commands and Sign Actions
 -------------------------
-Actions that can be performed by signs and the commands to configure them
-are documented at http://wiki.nerd.nu/wiki/EasySign.
+The prefix `/easy-sign` in the names of all commands can be abbreviated to `/es`,
+e.g. `/es-info` instead of `/easy-sign-info`.
+
+This plugin is a rewrite of a CommandHelper package documented at
+http://wiki.nerd.nu/wiki/EasySign. There are some differences in the options
+provided by this plugin. The documentation here will be updated in the future
+to accurately reflect the plugin. In the meantime, run `/es` for a list of
+all options, or use `/help <command>` e.g. `/help /easy-sign-reorder` for 
+documentation on specific commands.
 
 
 Dependencies

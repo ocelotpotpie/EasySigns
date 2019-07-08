@@ -40,41 +40,49 @@ permissions:
 commands:
   easy-sign:
     usage: /easy-sign <action> [parameters]
+    aliases: [es]
     description: Add an action to a sign
     permission: easysigns.commands.easy-sign
     permission-message: You don't have permission to do that.
   easy-sign-delete:
     usage: /easy-sign-delete
+    aliases: [es-delete]
     description: Remove all actions and unregister an EasySign
     permission: easysigns.commands.easy-sign-delete
     permission-message: You don't have permission to do that.
   easy-sign-info:
     usage: /easy-sign-info
+    aliases: [es-info]
     description: Inspect an EasySign's actions
     permission: easysigns.commands.easy-sign-info
     permission-message: You don't have permission to do that.
   easy-sign-remove:
     usage: /easy-sign-remove <index>
+    aliases: [es-remove]
     description: Remove an action from a sign.
     permission: easysigns.commands.easy-sign-remove
     permission-message: You don't have permission to do that.
   easy-sign-reorder:
     usage: /easy-sign-reorder <from> <to>
+    aliases: [es-reorder]
     description: Reorder sign actions
     permission: easysigns.commands.easy-sign-reorder
     permission-message: You don't have permission to do that.
   easy-sign-copy:
     usage: /easy-sign-copy
+    aliases: [es-copy]
     description: Copy the sign's actions to the clipboard
     permission: easysigns.commands.easy-sign-copy
     permission-message: You don't have permission to do that.
   easy-sign-paste:
     usage: /easy-sign-paste
+    aliases: [es-paste]
     description: Paste the copied sign actions to a new block.
     permission: easysigns.commands.easy-sign-paste
     permission-message: You don't have permission to do that.
   easy-sign-used:
     usage: /easy-sign-used <player> <count>
+    aliases: [es-used]
     description: Record that <player> has used a sign <count> times.
     permission: easysigns.commands.easy-sign-used
     permission-message: You don't have permission to do that.
