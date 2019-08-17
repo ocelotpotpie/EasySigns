@@ -28,6 +28,7 @@ import nu.nerd.easysigns.actions.LeatherAction;
 import nu.nerd.easysigns.actions.LoreAction;
 import nu.nerd.easysigns.actions.MaxAction;
 import nu.nerd.easysigns.actions.MsgAction;
+import nu.nerd.easysigns.actions.OpCmdAction;
 import nu.nerd.easysigns.actions.PotionAction;
 import nu.nerd.easysigns.actions.RandLocAction;
 import nu.nerd.easysigns.actions.RedstoneAction;
@@ -47,7 +48,7 @@ public class EasySigns extends JavaPlugin {
     private static Set<Material> WALL_SIGN_MATERIALS;
 
     private Map<String, Class<?>> actionAtlas;
-    private final Set<Block> tickingRedstone= new HashSet<>();
+    private final Set<Block> tickingRedstone = new HashSet<>();
 
     @Override
     public void onEnable() {
@@ -70,6 +71,7 @@ public class EasySigns extends JavaPlugin {
         actionAtlas.put("check-empty-inventory", CheckEmptyInvAction.class);
         actionAtlas.put("ci", ClearInvAction.class);
         actionAtlas.put("cmd", CmdAction.class);
+        actionAtlas.put("opcmd", OpCmdAction.class);
         actionAtlas.put("give", GiveAction.class);
         actionAtlas.put("hunger", HungerAction.class);
         actionAtlas.put("announce", AnnounceAction.class);
