@@ -2,8 +2,10 @@ package nu.nerd.easysigns.actions;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 /**
@@ -85,5 +87,125 @@ public abstract class SignAction {
      */
     public static String translate(String message) {
         return ChatColor.translateAlternateColorCodes('&', message.replace("&&", "\f")).replace("\f", "&");
+    }
+
+    /**
+     * Translate formatting codes, substitute variables surrounded by % and
+     * replace %% with % to yield a formatted string.
+     * 
+     * As a special case for backwards compatibility, the string %s is replaced
+     * by the player's name.
+     * 
+     * @param format the format string into which variables are substituted.
+     * @param player the player from whom some variables take their values.
+     * @param sign the sign block from which some variables take their values.
+     * @return the translated, formatted string.
+     */
+    public static String substitute(String format, Player player, Block sign) {
+        return substitute(translate(format), getStandardVariables(player, sign));
+    }
+
+    /**
+     * Return a map containing the standard substitution variables documented in
+     * the README.md.
+     * 
+     * The map maps variable name to a Supplier<> that returns a String
+     * representation of the variable's value.
+     * 
+     * @param player the player from whom some variables take their values.
+     * @param sign the sign block from which some variables take their values.
+     * @return a map of standard variables.
+     */
+    public static Map<String, Supplier<String>> getStandardVariables(Player player, Block sign) {
+        Map<String, Supplier<String>> variables = new HashMap<>();
+        variables.put("x", () -> Integer.toString(sign.getLocation().getBlockX()));
+        variables.put("y", () -> Integer.toString(sign.getLocation().getBlockY()));
+        variables.put("z", () -> Integer.toString(sign.getLocation().getBlockZ()));
+        variables.put("w", () -> sign.getLocation().getWorld().getName());
+        variables.put("p", () -> player.getName());
+        variables.put("px", () -> Integer.toString(player.getLocation().getBlockX()));
+        variables.put("py", () -> Integer.toString(player.getLocation().getBlockY()));
+        variables.put("pz", () -> Integer.toString(player.getLocation().getBlockZ()));
+        variables.put("px.", () -> String.format("%.3f", player.getLocation().getX()));
+        variables.put("py.", () -> String.format("%.3f", player.getLocation().getY()));
+        variables.put("pz.", () -> String.format("%.3f", player.getLocation().getZ()));
+        return variables;
+    }
+
+    /**
+     * Perform variable substitution on a format containing variable references
+     * of the form %name%.
+     * 
+     * The sequence %% is replaced with a single %.
+     * 
+     * As a special case for backwards compatibility, %s is treated as
+     * equivalent to %p%.
+     * 
+     * @param format the format specifier.
+     * @param variables a map from variable name (without %) to an object that
+     *        supplies its String representation.
+     * @return the format with all defined variable references replaced;
+     *         undefined variables are not replaced and %% is converted to %.
+     */
+    public static String substitute(String format, Map<String, Supplier<String>> variables) {
+        StringBuilder result = new StringBuilder();
+        StringBuilder segment = new StringBuilder();
+
+        // True if inside a %variable% reference:
+        boolean inVar = false;
+        for (int i = 0; i < format.length(); ++i) {
+            char c = format.charAt(i);
+            if (c == '%') {
+                if (inVar) {
+                    // End this variable reference.
+                    inVar = false;
+                    String variableName = segment.toString();
+                    segment.setLength(0);
+
+                    if (variables.containsKey(variableName)) {
+                        result.append(variables.get(variableName).get());
+                    } else {
+                        result.append('%').append(variableName).append('%');
+                    }
+                } else {
+                    // Non-variable, literal text.
+                    char next = (i + 1 < format.length()) ? format.charAt(i + 1) : '\0';
+                    if (next == '%') {
+                        // "%%" => literal '%'
+                        segment.append(c);
+                        ++i;
+                    } else {
+                        // End this literal segment; start a variable.
+                        inVar = true;
+                        if (segment.length() > 0) {
+                            result.append(segment.toString());
+                            segment.setLength(0);
+                        }
+                    }
+                }
+            } else if (inVar && c == 's' && segment.length() == 0) {
+                // Backwards compatibility support for %s as equivalent to %p%.
+                // TODO: drop this prior to preparation of a revision. It
+                // prevents %s.*% variables.
+                inVar = false;
+                result.append(variables.get("p").get());
+            } else {
+                segment.append(c);
+            }
+        } // for
+
+        // Last segment.
+        if (inVar)
+
+        {
+            // Mis-matched % at start of variable reference becomes literal.
+            segment.insert(0, '%');
+        }
+
+        if (segment.length() > 0) {
+            result.append(segment.toString());
+        }
+
+        return result.toString();
     }
 }

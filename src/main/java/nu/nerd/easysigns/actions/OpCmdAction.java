@@ -63,7 +63,7 @@ public class OpCmdAction extends SignAction {
 
     @Override
     public void action(Player player) {
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), substitute(command, player, sign.getBlock()));
     }
 
 }

@@ -71,6 +71,17 @@ signify the player's name.
 The following sign actions support variable substitution: `announce`,
 `check-empty-inventory`, `cmd`, `lore`, `msg`, `opcmd`, `take` and `takeheld`.
 
+
+## CommandHelper Integration
+
+When `cmd` and `opcmd` actions run CommandHelper aliases, it is necessary to
+use the CommandHelper `/runalias` command to run the command. For example,
+given a CommandHelper `/say` alias, you might do:
+
+    /es opcmd runalias say Hello %p%!
+
+This advice only applies to commands written in CommandHelper *MethodScript*.
+
  
 ## Sign Actions
 
