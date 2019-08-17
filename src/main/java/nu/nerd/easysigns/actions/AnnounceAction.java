@@ -90,7 +90,7 @@ public class AnnounceAction extends SignAction {
     public void action(Player player) {
         UUID playerUUID = player.getUniqueId();
         if (!hasUsed(playerUUID)) {
-            player.getServer().broadcastMessage(message.replace("%s", player.getName()));
+            player.getServer().broadcastMessage(substitute(message, player, sign.getBlock()));
             setUsed(playerUUID, true);
         } else {
             player.sendMessage(ChatColor.GREEN + "[SIGN] " + ChatColor.WHITE + "You can only announce here once!");

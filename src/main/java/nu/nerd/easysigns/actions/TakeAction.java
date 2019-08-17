@@ -91,7 +91,7 @@ public class TakeAction extends SignAction {
             player.getInventory().removeItem(item);
             player.setMetadata("easysigns.take", new FixedMetadataValue(EasySigns.instance, true));
         } else {
-            player.sendMessage(failMessage);
+            player.sendMessage(substitute(failMessage, player, sign.getBlock()));
         }
     }
 

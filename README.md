@@ -117,7 +117,7 @@ actions.
 | :--- | :--- |:--- |
 | announce | `<message>` | Sets up an announcement sign. The message is broadcast (only once) when a player clicks the sign. The message supports formatting codes and variable substitution. |
 | cart | `[<world>] <x> <y> <z>` | Spawns a minecart at the specified location. |
-| check-empty-inventory | `[<message>]` | If the player's inventory is not empty, do not execute any subsequent sign actions and show `<message>`, if specified, or a default message. Formatting codes and variable substitution are supported. |
+| check-empty-inventory | `[<message>]` | If the player's inventory is not empty, do not execute any subsequent sign actions and show `<message>`, if specified. Formatting codes and variable substitution are supported. |
 | ci | | Clears the player's inventory. |
 | clearpotions | | Clears all potion effects. |
 | cmd | `<command>` | Runs a command as the user. Omit the leading slash. Formatting codes and variable substitution are supported. |

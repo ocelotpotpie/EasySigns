@@ -110,15 +110,15 @@ public class LoreAction extends SignAction {
         boolean hasLore = held != null && held.hasItemMeta() && held.getItemMeta().hasLore();
         String heldItemLore = hasLore ? ChatColor.stripColor(String.join("", held.getItemMeta().getLore())) : "";
 
-        if (hasItem && heldItemLore.equals(lore)) {
+        if (hasItem && heldItemLore.equals(substitute(lore, player, sign.getBlock()))) {
             if (held.getAmount() >= item.getAmount()) {
                 held.setAmount(held.getAmount() - item.getAmount());
                 player.setMetadata("easysigns.lore", new FixedMetadataValue(EasySigns.instance, true));
             } else {
-                player.sendMessage(qtyMessage);
+                player.sendMessage(substitute(qtyMessage, player, sign.getBlock()));
             }
         } else {
-            player.sendMessage(itemMessage);
+            player.sendMessage(substitute(itemMessage, player, sign.getBlock()));
         }
     }
 }

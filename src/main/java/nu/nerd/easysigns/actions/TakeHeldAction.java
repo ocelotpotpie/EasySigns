@@ -103,10 +103,10 @@ public class TakeHeldAction extends SignAction {
                 held.setAmount(held.getAmount() - item.getAmount());
                 player.setMetadata("easysigns.takeheld", new FixedMetadataValue(EasySigns.instance, true));
             } else {
-                player.sendMessage(qtyMessage);
+                player.sendMessage(substitute(qtyMessage, player, sign.getBlock()));
             }
         } else {
-            player.sendMessage(itemMessage);
+            player.sendMessage(substitute(itemMessage, player, sign.getBlock()));
         }
     }
 
