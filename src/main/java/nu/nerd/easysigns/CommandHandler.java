@@ -419,7 +419,7 @@ public class CommandHandler implements TabExecutor {
         String cmdFmt = ChatColor.YELLOW + "%s " + ChatColor.GRAY + "- %s";
 
         // List available actions and their usage
-        sender.sendMessage(ChatColor.RED + "Usage: /easy-sign <type> [<args>]");
+        sender.sendMessage(ChatColor.RED + "Usage: /easy-sign <action> [<args>]");
         for (String actionName : plugin.getValidActions().stream().sorted().collect(Collectors.toList())) {
             try {
                 Class<?> c = plugin.getActionClassByName(actionName);
@@ -431,20 +431,22 @@ public class CommandHandler implements TabExecutor {
         }
 
         // More commands
-        sender.sendMessage(ChatColor.GOLD + "Multiple tasks can be added to each sign, and are run in order.");
+        sender.sendMessage(ChatColor.GOLD + "Multiple actions can be added to each sign and are run in the order they are listed.");
         sender.sendMessage(ChatColor.GOLD + "Related commands:");
-        sender.sendMessage(String.format(cmdFmt, "/easy-sign-info", "List all actions on a sign."));
-        sender.sendMessage(String.format(cmdFmt, "/easy-sign-remove", "Remove a single action from a sign."));
-        sender.sendMessage(String.format(cmdFmt, "/easy-sign-reorder", "Move an action from one position to another."));
-        sender.sendMessage(String.format(cmdFmt, "/easy-sign-delete", "Remove all actions from a sign."));
-        sender.sendMessage(String.format(cmdFmt, "/easy-sign-used <player> <count>", "Record that <player> has used a sign <count> times."));
+        sender.sendMessage(ChatColor.YELLOW + "/easy-sign-info" + ChatColor.GRAY + ", " +
+                           ChatColor.WHITE + "/easy-sign-remove <index>" + ChatColor.GRAY + ", " +
+                           ChatColor.YELLOW + "/easy-sign-reorder <from> <to>" + ChatColor.GRAY + ", " +
+                           ChatColor.WHITE + "/easy-sign-delete" + ChatColor.GRAY + ", " +
+                           ChatColor.YELLOW + "/easy-sign-copy" + ChatColor.GRAY + ", " +
+                           ChatColor.WHITE + "/easy-sign-paste" + ChatColor.GRAY + ", " +
+                           ChatColor.YELLOW + "/easy-sign-used <player> <count>");
 
         // Colors
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                                                                  "Color reference: &00 &11 &22 &33 &44 &55 &66 &77 &88 &99 &AA &BB &CC &DD &EE &FF"));
+                                                                  "&6Color reference: &00 &11 &22 &33 &44 &55 &66 &77 &88 &99 &AA &BB &CC &DD &EE &FF"));
 
         // Tips
-        sender.sendMessage(ChatColor.GOLD + "Remember, you also have access to /signtext");
+        sender.sendMessage(ChatColor.GOLD + "Remember, you also have access to /signtext.");
         sender.sendMessage("" + ChatColor.BLUE + ChatColor.UNDERLINE + "https://github.com/NerdNu/EasySigns");
     }
 
