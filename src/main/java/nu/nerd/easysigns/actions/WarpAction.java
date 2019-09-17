@@ -1,106 +1,150 @@
 package nu.nerd.easysigns.actions;
 
-import nu.nerd.easysigns.SignData;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import nu.nerd.easysigns.SignData;
 
 public class WarpAction extends SignAction {
 
-
+    private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.#");
     private Location loc;
-    private SignData sign;
-    private boolean valid = true;
+    private final SignData sign;
+    private boolean valid;
 
+    /**
+     * If non-null, this overrides the player's yaw angle (degrees) on teleport.
+     */
+    private Double yaw;
+
+    /**
+     * If non-null, this overrides the player's pitch angle (degrees) on
+     * teleport.
+     */
+    private Double pitch;
 
     /**
      * Construct new action from command arguments
-     * @param sign the sign this action is being applied to
-     * @param args raw command arguments from the CommandExecutor
+     * 
+     * @param sign the sign this action is being applied to.
+     * @param args raw command arguments from the CommandExecutor.
      */
     public WarpAction(SignData sign, String[] args) {
         this.sign = sign;
-        int x, y, z;
-        World world;
+
         try {
-            if (args.length == 4) {
-                world = Bukkit.getWorld(args[0]);
-                x = Integer.parseInt(args[1]);
-                y = Integer.parseInt(args[2]);
-                z = Integer.parseInt(args[3]);
-                loc = new Location(world, x, y, z);
+            // Check for a valid world first, then check the remaining args.
+            int xIndex;
+            World world = Bukkit.getWorld(args[0]);
+            if (world == null) {
+                world = sign.getBlock().getWorld();
+                xIndex = 0;
             } else {
-                x = Integer.parseInt(args[0]);
-                y = Integer.parseInt(args[1]);
-                z = Integer.parseInt(args[2]);
-                loc = new Location(sign.getBlock().getWorld(), x, y, z);
+                xIndex = 1;
             }
-        } catch (NumberFormatException|IndexOutOfBoundsException ex) {
-            valid = false;
+
+            int remainingArgs = args.length - xIndex;
+            if (remainingArgs < 3 || remainingArgs > 5) {
+                // Invalid by default.
+                return;
+            }
+
+            double x = Double.parseDouble(args[xIndex]);
+            double y = Double.parseDouble(args[xIndex + 1]);
+            double z = Double.parseDouble(args[xIndex + 2]);
+            loc = new Location(world, x, y, z);
+
+            if (remainingArgs >= 4) {
+                yaw = Double.parseDouble(args[xIndex + 3]);
+                if (remainingArgs == 5) {
+                    pitch = Double.parseDouble(args[xIndex + 4]);
+                }
+            }
+            valid = true;
+        } catch (NumberFormatException | IndexOutOfBoundsException ex) {
         }
     }
-
 
     public WarpAction(SignData sign, ConfigurationSection attributes) {
         this.sign = sign;
         this.loc = (Location) attributes.get("loc");
+        this.yaw = (Double) attributes.get("yaw");
+        this.pitch = (Double) attributes.get("pitch");
     }
 
-
+    @Override
     public String getName() {
         return "warp";
     }
 
-
+    @Override
     public String getUsage() {
-        return "[<world>] <x> <y> <z>";
+        return "[<world>] <x> <y> <z> [<yaw>] [<pitch>]";
     }
 
-
+    @Override
     public String getHelpText() {
-        return "Makes a warp sign. Send the x, y, and z coords, and optionally the world name. " +
-                "The user will warp there when they activate the sign.";
+        return "Teleports the player to the specified X, Y and Z coordinates in the specified world, " +
+               "or the current world if no world is specified. If the yaw and pitch, are specified, they set the " +
+               "player's look angles in degrees at the new location.";
     }
-
 
     /**
-     * Used to serialize the action into BlockStore
-     * @return String in the form of "warp world 0 70 0"
+     * Return the string representation of the sign action for /easy-sign-info.
+     * 
+     * @return String in the form "warp world 0 70 0" or "warp world 0 70 0 180
+     *         -45".
      */
+    @Override
     public String toString() {
-        return String.format("%s %s %d %d %d", getName(), loc.getWorld().getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        String yawText = yaw != null ? NUMBER_FORMAT.format(yaw) : "";
+        String pitchText = pitch != null ? NUMBER_FORMAT.format(pitch) : "";
+        return String.format("%s %s %s %s %s %s %s",
+                             getName(), loc.getWorld().getName(),
+                             NUMBER_FORMAT.format(loc.getX()), NUMBER_FORMAT.format(loc.getY()), NUMBER_FORMAT.format(loc.getZ()),
+                             yawText, pitchText);
     }
-
 
     /**
      * The action was successfully constructed with valid arguments
      */
+    @Override
     public boolean isValid() {
         return valid;
     }
 
-
+    /**
+     * Used to serialize the action into BlockStore.
+     */
+    @Override
     public Map<String, Object> serialize() {
         Map<String, Object> map = new HashMap<>();
         map.put("loc", loc);
+        map.put("yaw", yaw);
+        map.put("pitch", pitch);
         return map;
     }
 
-
     /**
-     * The action performed when the sign is clicked
+     * When the player clicks the sign, teleport them to the stored location,
+     * inserting the player's current yaw and pitch look angles if they are not
+     * explicitly overridden by the sign.
+     * 
      * @param player the player clicking the sign
      */
+    @Override
     public void action(Player player) {
-        loc.setDirection(player.getLocation().getDirection()); //maintain same rotation
-        player.teleport(loc);
+        Location playerLoc = player.getLocation();
+        Location destination = loc.clone();
+        destination.setYaw((float) (yaw != null ? yaw : playerLoc.getYaw()));
+        destination.setPitch((float) (pitch != null ? pitch : playerLoc.getPitch()));
+        player.teleport(destination);
     }
-
-
 }

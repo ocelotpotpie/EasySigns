@@ -141,7 +141,7 @@ actions.
 | take | `<item> <qty> <failmsg>` | Takes `<qty>` of the material `<item>` from a player. If they don't have enough, the `<failmsg>` is shown, and no other commands will be run. Formatting codes and variable substitution are supported. |
 | takeheld | `<qty> [<itemmsg>\|\|<qtymsg>]` | Takes the item in the player's main hand if it matches what is expected. If the wrong item or insufficient items are offered, subsequent sign actions are not executed and either `<itemmsg>` or `<qtymsg>` is shown, as appropriate. The `<itemmsg>` and `<qtymsg>` can be omitted, in which case they default to 'Insufficient items.' and 'That's not the right item!' respectively. If messages are specified, they must be separated by a double bar, `\|\|`. Formatting codes and variable substitution are supported. |
 | tpbed | | Teleports the player back to their bed. |
-| warp | `[<world>] <x> <y> <z>` | Teleports the player to the specified X, Y and Z coordinates in the specified world, or the current world if no world is specified. |
+| warp | `[<world>] <x> <y> <z> [<yaw>] [<pitch>]` | Teleports the player to the specified X, Y and Z coordinates in the specified world, or the current world if no world is specified. If the yaw and pitch, are specified, they set the player's look angles in degrees at the new location.|
 
 
 ## Other Commands
