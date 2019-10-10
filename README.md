@@ -174,7 +174,7 @@ actions.
 
 Dependencies
 ------------
-This plugin depends on BlockStore.
+This plugin depends on [BlockStore](https://github.com/totemo/BlockStore/releases).
 
 
 Permissions
